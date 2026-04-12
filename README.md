@@ -98,32 +98,41 @@ is reached — and raises the alarm before it gets there.
 | Twilio API | Emergency SMS delivery |
 
 ---
-
 ## System Architecture
+
+```
 AD8232 + MAX30102
-↓
-Arduino Nano
-↓ (USB Serial)
-Python main.py
-├── Signal processing
-├── Lyapunov stability score
-├── ODE decay model H(t) = H₀e^(−kt)
-├── HRV analysis (SDNN + RMSSD)
-├── QTc detection
-├── Risk probability calculation
-├── Alert system + SMS
-└── Firebase push (every 1 second)
-↓
-Firebase Realtime Database
-↓
-React Native Mobile App
-├── Live dashboard (stability score, HR, SpO2)
-├── ODE decay graph
-├── 30-minute trend history
-├── Notification feed
-├── Emergency alert screen
-├── Caregiver companion mode
-└── PDF session report
+         |
+         v
+   Arduino Nano
+   (reads sensors every 10ms)
+         |
+         v  USB Serial
+   Python main.py
+         |
+         |-- Signal processing and noise removal
+         |-- Lyapunov stability score (0-100)
+         |-- ODE decay model  H(t) = H0 x e^(-kt)
+         |-- HRV analysis  (SDNN + RMSSD)
+         |-- QTc detection  (Bazett formula)
+         |-- Risk probability calculation
+         |-- Alert system + Twilio SMS
+         |
+         v  every 1 second
+   Firebase Realtime Database
+         |
+         v
+   React Native Mobile App
+         |
+         |-- Live dashboard (stability score, HR, SpO2)
+         |-- ODE decay graph (live H0 and k values)
+         |-- 30-minute trend history
+         |-- Plain-English notification feed
+         |-- Emergency alert screen + countdown
+         |-- Caregiver companion mode
+         |-- PDF session report generator
+```
+
 
 ---
 
@@ -172,45 +181,51 @@ React Native Mobile App
 - USB charging via TP4056
 
 ---
-
 ## Project Structure
-Cardiac/
-├── main.py                  # Desktop monitor entry point
-├── requirements.txt         # Python dependencies
-├── firebase-adminsdk.json   # Firebase service account (not committed)
-├── arduino/
-│   └── cardiac_sensor.ino   # Arduino firmware
-├── src/
-│   ├── ecg_processor.py     # Signal cleaning + R-R extraction
-│   ├── stability_score.py   # Lyapunov exponent calculation
-│   ├── hrv_analysis.py      # SDNN + RMSSD
-│   ├── ode_model.py         # H(t) = H₀e^(−kt) decay model
-│   ├── qt_detection.py      # QRS + QTc calculation
-│   ├── risk_engine.py       # Risk probability calculation
-│   ├── event_log.py         # CSV event logging
-│   ├── sms_alert.py         # Twilio emergency SMS
-│   ├── firebase_sync.py     # Firebase push module
-│   └── simulation.py        # Hardware-free simulation mode
-├── CardiacAppCompanion/     # React Native mobile app
-│   ├── App.js
-│   ├── package.json
-│   └── src/
-│       ├── screens/
-│       │   ├── HomeScreen.js
-│       │   ├── TrendsScreen.js
-│       │   ├── ODEScreen.js
-│       │   ├── AlertsScreen.js
-│       │   └── SettingsScreen.js
-│       ├── context/
-│       │   ├── ThemeContext.js
-│       │   └── DataContext.js
-│       └── config/
-│           └── firebase.js
-└── docs/
-├── wiring_diagram.png
-├── system_architecture.png
-└── project_report.pdf
 
+```
+Cardiac/
+ |
+ |-- main.py                     Python desktop monitor entry point
+ |-- requirements.txt            Python dependencies
+ |-- firebase-adminsdk.json      Firebase service account (not committed)
+ |
+ |-- arduino/
+ |    |-- cardiac_sensor.ino     Arduino firmware
+ |
+ |-- src/
+ |    |-- ecg_processor.py       Signal cleaning and R-R extraction
+ |    |-- stability_score.py     Lyapunov exponent calculation
+ |    |-- hrv_analysis.py        SDNN and RMSSD
+ |    |-- ode_model.py           H(t) = H0 x e^(-kt) decay model
+ |    |-- qt_detection.py        QRS and QTc calculation
+ |    |-- risk_engine.py         Risk probability calculation
+ |    |-- event_log.py           CSV event logging
+ |    |-- sms_alert.py           Twilio emergency SMS
+ |    |-- firebase_sync.py       Firebase push module
+ |    |-- simulation.py          Hardware-free simulation mode
+ |
+ |-- CardiacAppCompanion/
+ |    |-- App.js
+ |    |-- package.json
+ |    |-- src/
+ |         |-- screens/
+ |         |    |-- HomeScreen.js
+ |         |    |-- TrendsScreen.js
+ |         |    |-- ODEScreen.js
+ |         |    |-- AlertsScreen.js
+ |         |    |-- SettingsScreen.js
+ |         |-- context/
+ |         |    |-- ThemeContext.js
+ |         |    |-- DataContext.js
+ |         |-- config/
+ |              |-- firebase.js
+ |
+ |-- docs/
+      |-- wiring_diagram.png
+      |-- system_architecture.png
+      |-- project_report.pdf
+```
 ---
 
 ## Getting Started
@@ -285,7 +300,9 @@ FIREBASE_DATABASE_URL=https://your-project-default-rtdb.firebaseio.com
 Built as a first-year engineering mathematics project.
 
 Project: BIO-FEA Cardiac Clinical Platform V4.0
+
 Institution: G.Narayanamma Institute Of Technology and Sciences
+
 Year: 2026
 
 ---
