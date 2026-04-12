@@ -41,6 +41,7 @@ starts wobbling before it falls.
 
 We model HRV (Heart Rate Variability) using the ODE:
 H(t) = H₀ · e^(−kt)
+
 Where:
 - `H₀` = baseline HRV established during personal calibration
 - `k` = current decay rate calculated from live data
@@ -209,6 +210,7 @@ Cardiac/
 ├── wiring_diagram.png
 ├── system_architecture.png
 └── project_report.pdf
+
 ---
 
 ## Getting Started
@@ -260,6 +262,7 @@ TWILIO_AUTH_TOKEN=your_token_here
 TWILIO_FROM_NUMBER=+1xxxxxxxxxx
 EMERGENCY_TO_NUMBER=+91xxxxxxxxxx
 FIREBASE_DATABASE_URL=https://your-project-default-rtdb.firebaseio.com
+
 ---
 
 ## What Makes This Different
@@ -282,7 +285,7 @@ FIREBASE_DATABASE_URL=https://your-project-default-rtdb.firebaseio.com
 Built as a first-year engineering mathematics project.
 
 Project: BIO-FEA Cardiac Clinical Platform V4.0
-Institution: G.Narayanamma Institute of Technology and Sciences
+Institution: G.Narayanamma Institute Of Technology and Sciences
 Year: 2026
 
 ---
@@ -290,6 +293,3 @@ Year: 2026
 ## Licence
 
 MIT Licence — free to use, modify, and distribute with attribution.
-
- 
- 
