@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { SafeAreaView, StatusBar, StyleSheet, Text, View } from 'react-native';
+import { StatusBar, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function App() {
   // Placeholder metric state values; replace with backend-fed values later.

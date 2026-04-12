@@ -1,5 +1,6 @@
 import React, { useContext } from 'react';
-import { View, Text, StyleSheet, ScrollView, SafeAreaView, TouchableOpacity, Platform } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Platform } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppContext } from '../src/context/AppContext';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../src/context/ThemeContext';

@@ -1,0 +1,7 @@
+{
+    "arduino.analyzeOnOpen": false,
+    "arduino.analyzeOnSelectionChange": false,
+    "C_Cpp.intelliSenseEngine": "Default",
+    "C_Cpp.dependencyCaching": "Disabled",
+    "arduino.sketch": "arduino/v2_firmware/v2_firmware.ino"
+}

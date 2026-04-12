@@ -6,7 +6,8 @@ import 'react-native-reanimated';
 import { CardiacProvider, useCardiacData } from '../src/context/CardiacDataContext';
 import SOSButton from '../components/SOSButton';
 import { ThemeProvider as AppThemeProvider, useTheme } from '../src/context/ThemeContext';
-import { useColorScheme, StyleSheet, View, Text, SafeAreaView, Platform } from 'react-native';
+import { useColorScheme, StyleSheet, View, Text, Platform } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AppProvider, AppContext } from '../src/context/AppContext';
 import audioService from '../src/services/AudioService';
 import hapticService from '../src/services/HapticService';
@@ -103,12 +104,14 @@ const styles = StyleSheet.create({
 
 export default function RootLayout() {
   return (
-    <AppThemeProvider>
-      <AppProvider>
-        <CardiacProvider>
-          <RootLayoutNav />
-        </CardiacProvider>
-      </AppProvider>
-    </AppThemeProvider>
+    <SafeAreaProvider>
+      <AppThemeProvider>
+        <AppProvider>
+          <CardiacProvider>
+            <RootLayoutNav />
+          </CardiacProvider>
+        </AppProvider>
+      </AppThemeProvider>
+    </SafeAreaProvider>
   );
 }

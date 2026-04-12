@@ -1,6 +1,8 @@
 {
-    "sketch": "arduino/ad8232_read/ad8232_read.ino",
+    "sketch": "c:/Users/bbsar/OneDrive/Desktop/Cardiac/arduino/v2_firmware/v2_firmware.ino",
     "board": "arduino:avr:uno",
-    "output": "build",
-    "port": "COM3"
+    "output": "c:/Users/bbsar/OneDrive/Desktop/Cardiac/build",
+    "port": "COM3",
+    "arduino.logLevel": "info",
+    "arduino.languageServer.enabled": true
 }

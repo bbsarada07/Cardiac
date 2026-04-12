@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, SafeAreaView, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useCardiacData } from '../src/context/CardiacDataContext';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../src/context/ThemeContext';
@@ -44,14 +45,14 @@ export default function IdentityScreen() {
               <FormInput 
                 label="Full Name" 
                 value={form.name} 
-                onChangeText={t => setForm({...form, name: t})} 
+                onChangeText={(t: string) => setForm({...form, name: t})} 
                 icon="person" 
               />
               <View style={styles.row}>
                 <FormInput 
                   label="Age" 
                   value={form.age} 
-                  onChangeText={t => setForm({...form, age: t})} 
+                  onChangeText={(t: string) => setForm({...form, age: t})} 
                   icon="event" 
                   style={{ flex: 1 }}
                   keyboardType="numeric"
@@ -59,7 +60,7 @@ export default function IdentityScreen() {
                 <FormInput 
                   label="Sex" 
                   value={form.sex} 
-                  onChangeText={t => setForm({...form, sex: t})} 
+                  onChangeText={(t: string) => setForm({...form, sex: t})} 
                   icon="wc" 
                   style={{ flex: 1 }}
                   isLast
@@ -74,13 +75,13 @@ export default function IdentityScreen() {
               <FormInput 
                 label="Blood Type" 
                 value={form.blood_type} 
-                onChangeText={t => setForm({...form, blood_type: t})} 
+                onChangeText={(t: string) => setForm({...form, blood_type: t})} 
                 icon="opacity" 
               />
               <FormInput 
                 label="Medical Conditions" 
                 value={form.conditions} 
-                onChangeText={t => setForm({...form, conditions: t})} 
+                onChangeText={(t: string) => setForm({...form, conditions: t})} 
                 icon="assignment" 
                 multiline
                 isLast
@@ -94,13 +95,13 @@ export default function IdentityScreen() {
               <FormInput 
                 label="Next of Kin" 
                 value={form.emergency_contact} 
-                onChangeText={t => setForm({...form, emergency_contact: t})} 
+                onChangeText={(t: string) => setForm({...form, emergency_contact: t})} 
                 icon="family-restroom" 
               />
               <FormInput 
                 label="Contact Number" 
                 value={form.emergency_phone} 
-                onChangeText={t => setForm({...form, emergency_phone: t})} 
+                onChangeText={(t: string) => setForm({...form, emergency_phone: t})} 
                 icon="phone" 
                 keyboardType="phone-pad"
                 isLast
@@ -120,7 +121,18 @@ export default function IdentityScreen() {
   );
 }
 
-function FormInput({ label, value, onChangeText, icon, style, keyboardType, isLast, multiline }: any) {
+interface FormInputProps {
+  label: string;
+  value: string;
+  onChangeText: (text: string) => void;
+  icon: any; // MaterialIcons name
+  style?: object;
+  keyboardType?: any;
+  isLast?: boolean;
+  multiline?: boolean;
+}
+
+function FormInput({ label, value, onChangeText, icon, style, keyboardType, isLast, multiline }: FormInputProps) {
   const { colors } = useTheme();
   return (
     <View style={[styles.inputWrapper, style, !isLast && { borderBottomWidth: 1, borderBottomColor: colors.border }]}>

@@ -1,5 +1,6 @@
 import React, { useContext, useMemo } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useCardiacData } from '../src/context/CardiacDataContext';
 import { AppContext } from '../src/context/AppContext';
 import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';

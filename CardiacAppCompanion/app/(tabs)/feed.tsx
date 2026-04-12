@@ -13,9 +13,18 @@ export default function FeedScreen() {
 
   // Filter history to only show distinct "events" (when alert level or pattern changes, or every 5 mins)
   const events = useMemo(() => {
-    const evts = [];
-    let lastLevel = null;
-    let lastPattern = null;
+    interface FeedEvent {
+      id: string;
+      time: string;
+      level: string;
+      pattern: string;
+      hr: number;
+      risk: number;
+    }
+
+    const evts: FeedEvent[] = [];
+    let lastLevel: string | null = null;
+    let lastPattern: string | null = null;
 
     // We process the history in sequence to detect state transitions
     [...history, liveState].forEach((state) => {
