@@ -1,0 +1,6 @@
+{
+    "sketch": "arduino/ad8232_read/ad8232_read.ino",
+    "board": "arduino:avr:uno",
+    "output": "build",
+    "port": "COM3"
+}
