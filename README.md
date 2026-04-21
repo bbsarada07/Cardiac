@@ -45,7 +45,6 @@ CorAssist employs a multi-layered Intelligence architecture designed for high-fi
 -   **Cloud & Persistence**: Firebase Realtime DB (Remote Sync), SQLite (Local Clinical Persistence).
 -   **Communication**: WebSockets (Real-time Mobile Companion sync), Twilio (Emergency SOS).
 
-
 ---
 
 ## 🚀 Key Features
