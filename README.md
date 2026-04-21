@@ -94,6 +94,29 @@ CorAssist/
 | **Communication** | WebSockets | Facilitates real-time Mobile Companion synchronization. |
 | | Twilio | Broadcasts autonomous Emergency SOS alerts. |
 
+### 📱 Software Tech Stack
+
+| Category | Technology & Frameworks |
+| :--- | :--- |
+| **Mobile Core Framework** | React Native (via Expo CLI) |
+| **State & Navigation** | React Context API, React Navigation (Stack/Tab) |
+| **Hardware & OS APIs** | `expo-location` (GPS), `expo-print` (PDF), `Vibration` |
+| **Backend Architecture** | Python 3.9+, AsyncIO, WebSockets (Sub-second WSS) |
+| **Predictive Deep Learning** | PyTorch (LSTM Time-Series, 1D CNN Waveform) |
+| **Anomaly Classification** | scikit-learn (Random Forest Baseline Learner) |
+| **Explainable AI (XAI)** | SHAP / LIME Libraries (Alert Justification) |
+| **External Routing** | Twilio API (Simulated Autonomous SOS Dispatch) |
+
+<br>
+
+### ⚙️ Hardware Node Components
+
+| Component Module | Hardware Specification & Purpose |
+| :--- | :--- |
+| **Biomedical Sensor** | **AD8232 Single-Lead ECG:** Acts as an analog frontend to extract, amplify, and filter bio-potential signals from noise. |
+| **Microcontroller (MCU)** | **ESP32:** Reads analog voltage via ADC and wirelessly transmits telemetry to the local Python backend via Wi-Fi/Bluetooth. |
+| **Electrode Interface** | **Ag/AgCl Surface Pads & 3-Lead Cable:** Standard adhesive gel electrodes to capture chest/limb electrical signals. |
+| **Power Supply** | **3.7V Lithium-Polymer (LiPo) Battery:** Lightweight, rechargeable power source to mimic a consumer wearable form factor. |
 ---
 
 ## Key Features
