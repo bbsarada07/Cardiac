@@ -20,7 +20,7 @@ The platform provides a 5-minute predictive window, allowing for autonomous emer
 ---
 
 ## 🏛️ System Architecture
-
+'''
 CorAssist/
 ├── backend/                     # Python 3.10+ Core Backend Logic
 │   ├── data_acquisition/        # High-frequency signal capture (200Hz)
@@ -48,7 +48,7 @@ CorAssist/
 │   ├── ui_components.py         # PyQt5 medical-grade interface layouts
 │   └── plots.py                 # PyQtGraph real-time high-FPS waveform plotting
 └── requirements.txt             # Dependencies (torch, numpy, scipy, pyqt5, etc.)
-
+'''
 ---
 
 ## 💻 Technical Stack
