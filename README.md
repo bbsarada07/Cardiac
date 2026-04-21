@@ -51,16 +51,20 @@ CorAssist/
 ```
 ---
 
-## 💻 Technical Stack
 
--   **Core Backend**: Python 3.10+ (Logic, DSP, and AI Inference)
--   **AI & Neural Frameworks**: 
-    -   **PyTorch**: Powers the LSTM Predictor and 1D ResNet-style CNN Morphology models.
-    -   **Scikit-Learn**: Drives the Random Forest personal baseline classifier.
--   **Signal Processing**: NumPy & SciPy (High-frequency signal analytics).
--   **Visualization & Dashboard**: PyQt5 & PyQtGraph (Medical-grade real-time plotting and high-FPS GUI).
--   **Cloud & Persistence**: Firebase Realtime DB (Remote Sync), SQLite (Local Clinical Persistence).
--   **Communication**: WebSockets (Real-time Mobile Companion sync), Twilio (Emergency SOS).
+### 💻 Technical Stack
+
+| Category | Technology | Purpose & Description |
+| :--- | :--- | :--- |
+| **Core Backend** | Python 3.10+ | Handles core logic, Digital Signal Processing (DSP), and AI inference. |
+| **AI & Neural Frameworks** | PyTorch | Powers the LSTM Predictor and 1D ResNet-style CNN Morphology models. |
+| | Scikit-Learn | Drives the Random Forest personal baseline classifier. |
+| **Signal Processing** | NumPy & SciPy | Executes high-frequency signal analytics. |
+| **Visualization & Dashboard** | PyQt5 & PyQtGraph | Renders medical-grade real-time plotting and high-FPS Graphical User Interfaces. |
+| **Cloud & Persistence** | Firebase Realtime DB | Manages remote synchronization. |
+| | SQLite | Handles local clinical data persistence. |
+| **Communication** | WebSockets | Facilitates real-time Mobile Companion synchronization. |
+| | Twilio | Broadcasts autonomous Emergency SOS alerts. |
 
 ---
 
