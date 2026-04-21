@@ -132,4 +132,4 @@ CorAssist is designed as a **software-first, sensor-agnostic** platform. While c
 - **Dev Post / Project ID**: [Insert Link Here]
 
 ---
-*Built with ❤️ for a safer heart.*
+
