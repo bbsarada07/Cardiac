@@ -96,14 +96,61 @@ CorAssist/
 
 ---
 
-## 🚀 Key Features
+## Key Features
 
-- **🧠 Hybrid Intelligence Engine**: Combines Lyapunov mathematical stability scores with a **Long Short-Term Memory (LSTM)** network to predict future heart rate variability (HRV) trends.
-- **⚡ Real-Time CNN Morphology**: A 1D ResNet-style Convolutional Neural Network that scans raw ECG waveforms (200Hz) to detect PVCs, ST Elevation, and other dangerous electrical patterns instantly.
-- **🛡️ Adaptive Threshold Learning**: Moves beyond fixed clinical limits. CorAssist uses Gaussian baseline modeling to learn the user's "Personal Normal" and adapts to natural physiological drift.
-- **🚨 Autonomous Emergency Dispatch**: Integrated with Firebase and Twilio to trigger automatic SOS broadcasts with precise GPS location when a critical ensemble risk score (>90%) is reached.
-- **📊 XAI (Explainable AI) Panel**: A clinical-grade transparency layer that visualizes which features (Stability, Prediction, or Morphology) are driving the current risk assessment.
+### Predictive LSTM Time-Series Forecasting
+- Integrates a Long Short-Term Memory (LSTM) neural network trained on live electrocardiogram time-series data
+- Processes rolling 60-second windows of R-R intervals, HRV, and stability scores to forecast conditions 5 minutes into the future
+- Outputs probabilistic confidence metrics alongside mathematical stability scores for dual-validation
+- Utilises transfer learning from the PhysioNet MIT-BIH Arrhythmia Dataset, fine-tuned on session-specific telemetry
 
+### CNN-Driven Morphological Waveform Analysis
+- Deploys a lightweight 1D Convolutional Neural Network (CNN) to continuously evaluate raw ECG waveform morphology
+- Detects acute clinical patterns in real-time, including ST-segment elevation, T-wave inversion, QRS widening, and PVCs
+- Operates on continuous 10-second data windows, immediately flagging dangerous morphological anomalies
+- Leverages pre-trained clinical datasets to ensure high-accuracy pattern recognition without requiring massive local training data
+
+### Personalised Random Forest Anomaly Detection
+- Establishes a patient-specific physiological baseline during calibration rather than relying on generic population averages
+- Classifies real-time cardiac patterns every 30 seconds into distinct risk categories (Normal, Early Warning, High Risk, Critical)
+- Employs dual-confirmation logic, requiring both the Random Forest and Lyapunov mathematical models to agree before escalating critical alerts
+- Maintains comprehensive, time-stamped classification logs for retrospective clinical review
+
+### Unified Ensemble Risk Scoring Engine
+- Aggregates four distinct analytical streams into a single, comprehensive 0–100 risk probability metric
+- Applies weighted contributions: Lyapunov stability (30%), LSTM forecasting (25%), Random Forest classification (25%), and CNN severity (20%)
+- Replaces isolated threshold triggers with a holistic, multi-model consensus algorithm
+- Visualises exact weight contributions on the dashboard, providing transparency into how the current risk state is calculated
+
+### ML-Powered Adaptive Risk Thresholds
+- Replaces static, hardcoded alert triggers with dynamically learned, patient-specific standard deviation thresholds
+- Fits a Gaussian distribution to the user's baseline HRV, heart rate, and stability metrics during initial calibration
+- Evolves and refines the baseline continuously as longitudinal session data accumulates
+- Displays real-time personal variance margins on the clinical dashboard to contextualise current readings against historical norms
+
+### Explainable AI (XAI) Clinical Diagnostics
+- Integrates SHAP/LIME-inspired attribution models to eliminate "black-box" algorithmic decision-making
+- Translates complex multi-model alert triggers into plain-English clinical justifications
+- Visually isolates and ranks the specific physiological features that contributed most heavily to a high-risk escalation
+- Empowers clinicians and caregivers to understand the exact mathematical and morphological reasons behind every alert
+
+### Privacy-Preserving Federated Learning Architecture
+- Architected to support decentralised machine learning, ensuring raw patient health data never leaves the local device
+- Prepares the ecosystem to share only encrypted model weight updates with the global cloud, rather than sensitive telemetry
+- Features user-controlled opt-in mechanisms for contributing to global model refinement
+- Aligns with strict medical AI privacy standards while allowing the core algorithm to learn from a distributed patient network
+
+### Autonomous SOS Dispatch System
+- Acts as an automated proxy for users experiencing physical incapacitation
+- Bypasses mobile OS background restrictions via server-side communication protocols
+- Extracts precise device GPS coordinates immediately upon crossing critical risk thresholds
+- Routes live Google Maps links and patient status to designated emergency contacts via cloud services
+
+### Accessible Clinical Interface
+- Built specifically for assistive needs, prioritising accessibility over standard consumer design
+- Features tactile haptic pulse synchronisation allowing users to feel vitals without looking at a screen
+- Integrates voice-synthesised critical warnings for reliable auditory notification
+- Employs shape-based visual indicators ensuring full usability for colour-blind patients
 ---
 
 ## 🛠️ Installation & Setup
