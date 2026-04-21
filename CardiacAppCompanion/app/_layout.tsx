@@ -14,9 +14,10 @@ import hapticService from '../src/services/HapticService';
 import voiceService from '../src/services/VoiceService';
 import LockScreen from './lock';
 import OnboardingScreen from './onboarding';
+import WelcomeScreen from '../src/components/WelcomeScreen';
 
 function RootLayoutNav() {
-  const { theme, colors } = useTheme();
+  const { theme, colors, hasSelectedTheme } = useTheme();
   const { liveState } = useCardiacData();
   const { isDemoMode, dismissAlert, isAppLocked, hasCompletedOnboarding, liveData } = useContext(AppContext);
   const router = useRouter();
@@ -65,8 +66,9 @@ function RootLayoutNav() {
       </Stack>
       <SOSButton />
       {isAppLocked && <LockScreen />}
-      {!hasCompletedOnboarding && <OnboardingScreen />}
-      <StatusBar style="auto" />
+      {!hasSelectedTheme && <WelcomeScreen />}
+      {hasSelectedTheme && !hasCompletedOnboarding && <OnboardingScreen />}
+      <StatusBar style={theme === 'dark' ? 'light' : 'dark'} />
     </ThemeProvider>
   );
 }

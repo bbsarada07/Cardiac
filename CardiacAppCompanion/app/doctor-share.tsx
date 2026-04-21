@@ -28,7 +28,7 @@ export default function DoctorShare() {
   const copyToWhatsApp = async () => {
     hapticService.triggerImpact();
     
-    let message = `*CARDIAC MONITOR SESSION LOG*\n`;
+    let message = `*CORASSIST SESSION LOG*\n`;
     message += `*Date:* ${new Date().toLocaleDateString()}\n`;
     message += `*Status:* ${liveData.ai_pattern}\n`;
     message += `--------------------------\n`;
@@ -41,7 +41,7 @@ export default function DoctorShare() {
     });
 
     message += `--------------------------\n`;
-    message += `_Sent via Bio-Fea Cardiac Platform_`;
+    message += `_Sent via CorAssist Clinical Platform_`;
 
     await Clipboard.setStringAsync(message);
     hapticService.triggerSuccess();
@@ -62,7 +62,7 @@ export default function DoctorShare() {
           <MaterialCommunityIcons name="whatsapp" size={24} color="#22C55E" />
           <Text style={[styles.infoTitle, { color: colors.text }]}>WhatsApp Export</Text>
           <Text style={[styles.infoSub, { color: colors.subtext }]}>
-            Format today's cardiac session into a clean table for your healthcare provider.
+            Format today's session into a clean table for your healthcare provider.
           </Text>
         </View>
 

@@ -18,7 +18,7 @@ class DashboardUI(QWidget):
         self.setup_plots()
         
     def init_ui(self):
-        self.setWindowTitle("V2.0 Cardiac Monitor (Predictive & Multi-Sensor)")
+        self.setWindowTitle("CorAssist Monitor - Predictive Clinical Platform")
         self.resize(1400, 900)
         self.setStyleSheet("background-color: #0f172a; color: #f8fafc;")
 
@@ -26,7 +26,7 @@ class DashboardUI(QWidget):
         
         # --- TOP CONTROLS ---
         top_bar = QHBoxLayout()
-        title = QLabel("AI PREDICTIVE CARDIAC MONITOR V2")
+        title = QLabel("CORASSIST: AI PREDICTIVE PLATFORM")
         title.setFont(QFont("Arial", 20, QFont.Bold))
         title.setStyleSheet("color: #38bdf8;")
         
@@ -216,7 +216,7 @@ class DashboardUI(QWidget):
         if is_latched or risk >= 60:
             self.risk_val.setStyleSheet("color: #ef4444;")
             self.alert_banner.setStyleSheet("background-color: #991b1b; color: yellow;")
-            self.alert_banner.setText("CRITICAL: CARDIAC ARREST RISK DETECTED")
+            self.alert_banner.setText("CRITICAL: CORASSIST RISK ALERT")
         elif risk < 30:
             self.risk_val.setStyleSheet("color: #22c55e;")
             self.alert_banner.setStyleSheet("background-color: #166534; color: white;")

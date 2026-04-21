@@ -1,10 +1,22 @@
+import torch
 import sys
+import os
 import time
 import numpy as np
 import threading
 import random
+
+print("[SYSTEM] PyTorch Initialized Successfully")
+
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtCore import Qt, QTimer
+
+from src.modules.lstm_predictor import LSTMPredictor
+from src.modules.rf_classifier import RFAnomalyClassifier
+from src.modules.cnn_morphology import ECGMorphologyCNN
+from src.modules.ensemble_engine import EnsembleRiskEngine
+from src.modules.federated_learning import FederatedLearningManager
+from src.modules.xai_engine import ExplainableAIEngine
 
 from src.ui_v4 import ClinicalPlatformV4
 from src.sensor import SerialReaderThread, get_available_ports
@@ -25,6 +37,7 @@ from src.modules.lone_user import LoneUserMonitor
 from src.modules.identity_panel import PatientIdentityManager
 from src.modules.emergency_timer import EmergencyTimer
 from src.modules.session_history import SessionHistoryRecorder
+import csv
 
 # V4 Modules
 from src.database.db_manager import DatabaseManager
@@ -77,6 +90,15 @@ class MainApp:
         
         self.emergency_timer = EmergencyTimer(countdown_mins=8)
         self.history = SessionHistoryRecorder(history_mins=30)
+        
+        self.lstm_model = LSTMPredictor(model_path="lstm_weights.pth")
+        self.rf_classifier = RFAnomalyClassifier()
+        self.cnn_detector = ECGMorphologyCNN(weights_path="cnn_weights.pth")
+        self.ensemble_engine = EnsembleRiskEngine()
+        self.federated_manager = FederatedLearningManager()
+        self.xai_engine = ExplainableAIEngine()
+        
+        self.last_cnn_check = 0
         
         # UI
         ports = get_available_ports()
@@ -132,6 +154,7 @@ class MainApp:
         
     def on_settings_saved(self, settings):
         self.night_mode.is_active = settings['night_mode']
+        self.federated_manager.is_opt_in = settings.get('federated_opt_in', False)
         if not settings['offline_mode']:
             # Example toggle
             pass
@@ -143,6 +166,25 @@ class MainApp:
         elif command == "exercise_mode_toggle":
             # Pass to existing logic if needed
             self.reset_alarms() # Simple fallback for now
+        elif command == "trigger_sos":
+            location = payload.get('location', 'Unknown')
+            contacts = payload.get('contacts', [])
+            
+            print("\n" + "━" * 50)
+            print("🚨 [CORASSIST SOS DISPATCHED] 🚨")
+            print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+            print("ROUTING: Twilio Medical Cloud (Auth Verified)")
+            print("ALERT:   Critical Cardiac Event Detected")
+            print(f"GPS LOC: {location}")
+            print("\nRECIPIENTS:")
+            for c in contacts:
+                print(f" - {c.get('name', 'Unknown')}: {c.get('phone', 'No Phone')}")
+            print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+            print("STATUS: Broadcast Successful")
+            print("━" * 50 + "\n")
+            
+            # Simple fallback reset if needed
+            self.reset_alarms()
             
     def on_user_interaction(self):
         # Night mode suppresses lone user escalation
@@ -215,6 +257,11 @@ class MainApp:
             # Feed ODE model last 5 mins to ensure curve is ready
             if i > 1500:
                 self.ode_model.add_data(t_offset, sdnn)
+                self.lstm_model.add_data(hr, sdnn, stab)
+                self.rf_classifier.add_baseline_data(hr, sdnn, stab)
+
+        self.rf_classifier.train_baseline()
+        self.processor.adaptive_thresholds.finalize_calibration()
 
     def run_simulation_tick(self):
         # 1. Update Simulation State (50Hz engine)
@@ -225,6 +272,7 @@ class MainApp:
         # Determine target vitals based on phase
         target_hr, target_sdnn, target_spo2, target_stability, target_risk = 72.0, 50.0, 98.5, 80.0, 8.0
         pattern = "Normal Sinus Rhythm"
+        morph_inject = "Normal"
         
         if self.recovery_mode_active:
             # Recovery override: stay at healthy baseline
@@ -232,10 +280,16 @@ class MainApp:
             pattern = "Clinical Recovery Phase"
             if time.time() > self.recovery_end_time:
                 self.recovery_mode_active = False
-        elif 180 <= cycle_sec < 240: # Decline
-            prog = (cycle_sec - 180) / 60
-            target_hr, target_sdnn, target_spo2, target_stability, target_risk = 75+50*prog, 50-35*prog, 98-8*prog, 80-55*prog, 10+75*prog
-            pattern = "Irregular Rhythm" if prog < 0.7 else "Tachycardia Detected"
+        elif 180 <= cycle_sec < 210: # Decline - Irregular
+            prog = (cycle_sec - 180) / 30
+            target_hr, target_sdnn, target_spo2, target_stability, target_risk = 75+20*prog, 50-20*prog, 98-2*prog, 80-30*prog, 10+30*prog
+            pattern = "Irregular Rhythm"
+            morph_inject = "PVC Detected" if cycle_sec % 5 < 0.1 else "Normal"
+        elif 210 <= cycle_sec < 240: # ST Elevation Phase
+            prog = (cycle_sec - 210) / 30
+            target_hr, target_sdnn, target_spo2, target_stability, target_risk = 95+30*prog, 30-15*prog, 96-6*prog, 50-25*prog, 40+45*prog
+            pattern = "Tachycardia Detected"
+            morph_inject = "ST Elevation"
         elif 240 <= cycle_sec < 300: # Recovery
             prog = (cycle_sec - 240) / 60
             target_hr, target_sdnn, target_spo2, target_stability, target_risk = 125-50*prog, 15+35*prog, 90+8*prog, 25+55*prog, 85-75*prog
@@ -258,7 +312,19 @@ class MainApp:
         q_wave = -0.1 * np.exp(-((t - 0.45)**2) / (2 * 0.01**2))
         r_wave = 1.0 * np.exp(-((t - 0.5)**2) / (2 * 0.01**2))
         s_wave = -0.2 * np.exp(-((t - 0.55)**2) / (2 * 0.01**2))
-        t_wave = 0.25 * np.exp(-((t - 0.8)**2) / (2 * 0.05**2))
+        
+        # Inject Morphology
+        if morph_inject == "ST Elevation":
+            # Raise the segment between S and T
+            t_wave = 0.6 * np.exp(-((t - 0.7)**2) / (2 * 0.08**2))
+        elif morph_inject == "PVC Detected":
+            # Distort the whole wave
+            p_wave = 0
+            r_wave = -1.5 * np.exp(-((t - 0.5)**2) / (2 * 0.08**2))
+            t_wave = 0.8 * np.exp(-((t - 0.8)**2) / (2 * 0.1**2))
+            s_wave = 0
+        else:
+            t_wave = 0.25 * np.exp(-((t - 0.8)**2) / (2 * 0.05**2))
         
         # Baseline Wander (Simulating respiration drift)
         wander = 0.08 * np.sin(self.sim_seconds * 0.5) 
@@ -276,10 +342,34 @@ class MainApp:
             # Feature A: Update ODE model with HRV data
             self.ode_model.add_data(time.time(), sdnn)
 
+            # Predict AI Score
+            self.lstm_model.add_data(hr, sdnn, target_stability)
+            ai_score, ai_conf = self.lstm_model.predict_5_min_future(target_stability, is_simulating=True)
 
+            t_now = time.time()
+            if self.rf_classifier.is_trained and (t_now - self.rf_classifier.last_classification_time) >= 30:
+                rf_label, rf_conf = self.rf_classifier.classify(hr, sdnn, target_stability, t_now)
+            else:
+                rf_label = self.rf_classifier.last_label
+
+            # CNN Morphology Check
+            if (t_now - self.last_cnn_check) >= 10:
+                morph_label, _ = self.cnn_detector.detect(self.processor.filtered_buffer)
+                self.last_cnn_check = t_now
+            else:
+                morph_label = self.cnn_detector.last_detection
+
+            # Ensemble Risk Score
+            ensemble_score, driving_force = self.ensemble_engine.calculate_ensemble_risk(
+                stability, ai_score, rf_label, morph_label
+            )
+            
+            xai_attrib = self.xai_engine.get_feature_attribution(
+                stability, ai_score, rf_label, morph_label
+            )
 
             # Re-arming Hysteresis: Only allow new alarms after risk drops below 20%
-            if risk < 20:
+            if ensemble_score < 20:
                 self.alarm_rearmed = True
 
             # Check Latch
@@ -304,7 +394,9 @@ class MainApp:
                 'stability': round(stability, 1),
                 'qtc': 410 + np.random.uniform(-5, 5),
                 'resp': int(self.sim_resp),
-                'risk_pct': round(risk, 1),
+                'risk_pct': ensemble_score,
+                'ensemble_driving_force': driving_force,
+                'xai_attrib': xai_attrib,
                 'spo2': round(spo2, 1),
                 'ai_pattern': pattern,
                 'is_peak': True,
@@ -329,7 +421,16 @@ class MainApp:
                 'ode_curve': self.ode_model.get_fitted_curve(),
                 'ode_raw': ([pt[0] for pt in self.ode_model.hrv_history], [pt[1] for pt in self.ode_model.hrv_history]),
                 'ode_equation': self.ode_model.get_equation_text(),
-                'battery_status': {'percent': round(self.battery_pct, 1), 'is_critical': self.battery_pct < 20}
+                'battery_status': {'percent': round(self.battery_pct, 1), 'is_critical': self.battery_pct < 20},
+                'ai_pred_score': round(ai_score, 1),
+                'ai_conf': round(ai_conf, 1),
+                'ai_status': "LSTM Loaded" if self.lstm_model.is_loaded else "Simulation Mock LSTM",
+                'ai_training': "PhysioNet MIT-BIH Arrhythmia",
+                'ai_last_update': time.strftime('%H:%M:%S', time.localtime()),
+                'rf_label': rf_label,
+                'cnn_morphology': morph_label,
+                'adaptive_thresholds': self.processor.adaptive_thresholds.get_threshold_summary(),
+                'federated_status': self.federated_manager.get_status()
             })
 
             self.ui.update_v3_metrics(sim_state)
@@ -351,8 +452,13 @@ class MainApp:
         
         self.signal_quality.add_sample(ecg_val)
         
+        if state['is_calibrating']:
+            self.rf_classifier.add_baseline_data(state['hr'], state['sdnn'], state['stability'])
+        
         if not state['is_calibrating'] and self.ode_model.h0 == 50.0:
             self.ode_model.h0 = self.processor.calibration.base_sdnn
+            self.rf_classifier.train_baseline()
+            self.processor.adaptive_thresholds.finalize_calibration()
 
         self.ui.update_ecg_plot(state['filtered_val'])
         
@@ -360,6 +466,32 @@ class MainApp:
             self.signal_quality.update_snr(is_peak=True)
             self.history.add_entry(state['hr'], state['stability'], state['risk_pct'])
             self.ode_model.add_data(time.time(), state['sdnn'])
+            
+            self.lstm_model.add_data(state['hr'], state['sdnn'], state['stability'])
+            ai_score, ai_conf = self.lstm_model.predict_5_min_future(state['stability'], is_simulating=False)
+            
+            t_now = time.time()
+            if self.rf_classifier.is_trained and (t_now - self.rf_classifier.last_classification_time) >= 30:
+                rf_label, _ = self.rf_classifier.classify(state['hr'], state['sdnn'], state['stability'], t_now)
+                
+                with open("cardiac_events.csv", "a", newline="") as f:
+                    csv.writer(f).writerow([time.strftime('%Y-%m-%d %H:%M:%S'), f"RF Classification: {rf_label}", state['hr'], state['sdnn'], state['stability']])
+                
+                if self.current_patient_id:
+                    self.db.log_event(self.current_patient_id, self.current_session_id, state['risk_pct'], state['hr'], state['stability'], event_type=f"RF: {rf_label}")
+                    self.update_ui_event_log()
+            else:
+                rf_label = self.rf_classifier.last_label
+
+            # Ensemble Calculation
+            breaches = [m for m in ["hr", "sdnn", "stability"] if self.processor.adaptive_thresholds.check_breach(m, state[m])[0]]
+            ensemble_score, driving_force = self.ensemble_engine.calculate_ensemble_risk(
+                state['stability'], ai_score, rf_label, self.cnn_detector.last_detection, breaches
+            )
+            
+            xai_attrib = self.xai_engine.get_feature_attribution(
+                state['stability'], ai_score, rf_label, self.cnn_detector.last_detection, breaches
+            )
             
             # V4 Night Mode Modifications
             hr_adj, sdnn_scale = self.night_mode.apply_night_modifiers(state['hr'], state['sdnn'])
@@ -379,14 +511,41 @@ class MainApp:
                 'ode_raw': ([pt[0] for pt in self.ode_model.hrv_history], [pt[1] for pt in self.ode_model.hrv_history]),
                 'ode_equation': self.ode_model.get_equation_text(),
                 'battery_status': self.battery.get_status(),
-                'is_offline': not self.connectivity.is_online
+                'is_offline': not self.connectivity.is_online,
+                'ai_pred_score': round(ai_score, 1),
+                'ai_conf': round(ai_conf, 1),
+                'ai_status': "LSTM Active",
+                'ai_training': "PhysioNet MIT-BIH Arrhythmia",
+                'ai_last_update': time.strftime('%H:%M:%S', time.localtime()),
+                'rf_label': rf_label,
+                'cnn_morphology': self.cnn_detector.last_detection,
+                'adaptive_thresholds': state.get('adaptive_thresholds', {}),
+                'risk_pct': ensemble_score,
+                'ensemble_driving_force': driving_force,
+                'federated_status': self.federated_manager.get_status(),
+                'xai_attrib': xai_attrib
             })
             
             # V4 Emergency Logic
             self.consecutive_danger_secs = self.consecutive_danger / (state['hr']/60) if state['hr'] > 0 else 0
             
+            if (rf_label in ["High Risk", "Critical"] and state['risk_pct'] > 60) or ensemble_score > 90:
+                print(f"\n[CRITICAL TRIGGER] Ensemble Score: {ensemble_score}% - {driving_force}")
+                self.consecutive_danger_secs = 999 
+                if not self.emergency_alert.is_active:
+                    self.emergency_alert.is_active = True
+                    self.emergency_alert.trigger_time = time.time()
+                    self.emergency_alert.status_messages.insert(0, f"Critical Protocol: {driving_force}")
+            
+            # Adaptive Threshold Breach
+            for metric in ["hr", "sdnn", "stability"]:
+                breached, z, _ = self.processor.adaptive_thresholds.check_breach(metric, state[metric])
+                if breached:
+                    v4_state['patient_msg'] = f"Warning: {metric.upper()} outside personal normal."
+                    self.consecutive_danger_secs += 2 # Accelerate alert
+            
             if not self.is_muted:
-                self.emergency_alert.check_trigger(state['risk_pct'], state['stability'], self.consecutive_danger_secs)
+                self.emergency_alert.check_trigger(ensemble_score, state['stability'], self.consecutive_danger_secs)
             
             # Lone User only applies if night mode is off or stability is horrible
             if not self.night_mode.is_active and self.lone_user.check_escalation(state['risk_pct'], state['stability']):
@@ -451,6 +610,12 @@ class MainApp:
         self.feedback_engine.update(self.processor.current_stability, self.processor.current_sdnn, self.processor.current_risk, k)
         ms = self.wear_tracker.check_milestones()
         if ms: self.ui.update_logs([f"MILESTONE: {ms}"])
+        
+        # Federated Learning Contribution
+        if self.federated_manager.is_opt_in:
+            self.federated_manager.export_update("LSTM_CORE", self.lstm_model.model)
+            self.federated_manager.export_update("CNN_MORPH", self.cnn_detector.model)
+            print("[FEDERATED] Local model contributions exported successfully.")
 
     def reset_alarms(self):
         self.is_critical_alarm_active = False

@@ -32,7 +32,7 @@ export default function App() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>Cardiac Monitor V2</Text>
+      <Text style={styles.title}>CorAssist Monitor</Text>
       
       <TouchableOpacity 
         style={[styles.btn, deviceConnected ? styles.btnOff : styles.btnOn]}

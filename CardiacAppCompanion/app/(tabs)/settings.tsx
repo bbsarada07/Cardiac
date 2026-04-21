@@ -36,10 +36,14 @@ export default function SettingsScreen() {
 
       {/* Emergency Contacts Module */}
       <View style={styles.section}>
-        <Text style={[styles.sectionHeader, { color: colors.subtext }]}>EMERGENCY PROTOCOL</Text>
+        <Text style={[styles.sectionHeader, { color: colors.subtext }]}>EMERGENCY PROTOCOL (SOS)</Text>
         <View style={[styles.card, { backgroundColor: colors.card }]}>
-          <InputField label="Contact Name" value={patientProfile?.emergency_contact || ""} onChangeText={t => updatePatientProfile({ emergency_contact: t })} />
-          <InputField label="Contact Phone" value={patientProfile?.emergency_phone || ""} onChangeText={t => updatePatientProfile({ emergency_phone: t })} keyboardType="phone-pad" />
+          <InputField label="Contact 1 Name" value={patientProfile?.contact1_name || ""} onChangeText={t => updatePatientProfile({ contact1_name: t })} />
+          <InputField label="Contact 1 Phone" value={patientProfile?.contact1_phone || ""} onChangeText={t => updatePatientProfile({ contact1_phone: t })} keyboardType="phone-pad" />
+          <InputField label="Contact 2 Name" value={patientProfile?.contact2_name || ""} onChangeText={t => updatePatientProfile({ contact2_name: t })} />
+          <InputField label="Contact 2 Phone" value={patientProfile?.contact2_phone || ""} onChangeText={t => updatePatientProfile({ contact2_phone: t })} keyboardType="phone-pad" />
+          <InputField label="Contact 3 Name" value={patientProfile?.contact3_name || ""} onChangeText={t => updatePatientProfile({ contact3_name: t })} />
+          <InputField label="Contact 3 Phone" value={patientProfile?.contact3_phone || ""} onChangeText={t => updatePatientProfile({ contact3_phone: t })} keyboardType="phone-pad" />
           <InputField label="Alert Threshold (%)" value="75" isLast />
         </View>
       </View>

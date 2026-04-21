@@ -14,7 +14,7 @@ class OnboardingWizard(QWidget):
         
         layout = QVBoxLayout(self)
         
-        title = QLabel("Welcome to Bio-FEA Clinical Monitor")
+        title = QLabel("Welcome to CorAssist Clinical Monitor")
         title.setFont(QFont("Arial", 24, QFont.Bold))
         title.setStyleSheet("color: #38bdf8;")
         layout.addWidget(title)

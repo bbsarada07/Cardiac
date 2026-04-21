@@ -49,92 +49,129 @@ export default function FeedScreen() {
   const generatePDF = async () => {
     setIsGenerating(true);
     try {
-      // Calculate averages from history
-      const avgHR = history.length > 0 ? Math.round(history.reduce((acc, s) => acc + s.heart_rate, 0) / history.length) : liveState.heart_rate;
-      const avgSpO2 = history.length > 0 ? (history.reduce((acc, s) => acc + s.spo2, 0) / history.length).toFixed(1) : liveState.spo2.toFixed(1);
+      const now = new Date();
+      const timestamp = `${now.toLocaleDateString()} ${now.toLocaleTimeString()}`;
       
       const html = `
-      <html>
-        <head>
-          <style>
-            body { font-family: 'Helvetica', sans-serif; padding: 40px; color: #1e293b; }
-            .header { text-align: center; border-bottom: 2px solid #3b82f6; padding-bottom: 20px; margin-bottom: 30px; }
-            .title { color: #1e3a8a; font-size: 24px; font-weight: bold; margin-bottom: 5px; }
-            .subtitle { color: #64748b; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; }
-            .section { margin-bottom: 25px; }
-            .section-title { font-size: 16px; font-weight: bold; color: #3b82f6; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px; margin-bottom: 15px; }
-            .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-            .info-item { font-size: 13px; }
-            .info-label { color: #64748b; font-weight: bold; }
-            table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-            th { text-align: left; background-color: #f8fafc; border-bottom: 2px solid #e2e8f0; padding: 10px; font-size: 12px; }
-            td { padding: 10px; border-bottom: 1px solid #f1f5f9; font-size: 12px; }
-            .status-normal { color: #16a34a; font-weight: bold; }
-            .status-caution { color: #d97706; font-weight: bold; }
-            .status-critical { color: #dc2626; font-weight: bold; }
-            .footer { margin-top: 50px; text-align: center; font-size: 10px; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 20px; }
-          </style>
-        </head>
-        <body>
-          <div class="header">
-            <div class="title">BIO-FEA CARDIAC CLINICAL PLATFORM</div>
-            <div class="subtitle">Official Session Summary Report</div>
-          </div>
-
-          <div class="section">
-            <div class="section-title">PATIENT IDENTITY</div>
-            <div class="info-grid">
-              <div class="info-item"><span class="info-label">Name:</span> ${patientProfile.name || 'Jane Doe'}</div>
-              <div class="info-item"><span class="info-label">Age/Sex:</span> ${patientProfile.age || '45'}y / ${patientProfile.sex || 'Female'}</div>
-              <div class="info-item"><span class="info-label">Known Conditions:</span> ${patientProfile.conditions || 'None Declared'}</div>
-              <div class="info-item"><span class="info-label">Report Date:</span> ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}</div>
+        <html>
+          <head>
+            <style>
+              body { font-family: 'Helvetica', 'Arial', sans-serif; color: #1e293b; padding: 40px; line-height: 1.5; }
+              .hospital-header { border-bottom: 3px solid #1e3a8a; padding-bottom: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-end; }
+              .brand { color: #1e3a8a; font-size: 28px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
+              .doc-type { font-size: 14px; color: #64748b; font-weight: 600; }
+              .timestamp { font-size: 12px; color: #94a3b8; margin-top: 5px; }
+              
+              .section-title { font-size: 14px; font-weight: bold; color: #3b82f6; text-transform: uppercase; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px; margin: 25px 0 15px 0; }
+              
+              .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+              .demo-table { width: 100%; border-collapse: collapse; }
+              .demo-table td { padding: 8px 0; font-size: 13px; }
+              .label { color: #64748b; font-weight: 600; width: 120px; }
+              
+              .metrics-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-top: 10px; }
+              .metric-box { border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; text-align: center; background-color: #f8fafc; }
+              .metric-val { font-size: 20px; font-weight: bold; color: #1e293b; margin-bottom: 4px; }
+              .metric-label { font-size: 10px; color: #64748b; font-weight: bold; text-transform: uppercase; }
+              
+              .analytics-card { background-color: #eff6ff; border-left: 4px solid #3b82f6; padding: 15px; border-radius: 4px; }
+              .analytics-text { font-size: 13px; color: #1e3a8a; }
+              
+              table.events { width: 100%; border-collapse: collapse; margin-top: 10px; }
+              table.events th { text-align: left; font-size: 11px; text-transform: uppercase; color: #64748b; padding: 10px; border-bottom: 2px solid #e2e8f0; }
+              table.events td { padding: 10px; border-bottom: 1px solid #f1f5f9; font-size: 12px; }
+              .status-normal { color: #16a34a; font-weight: bold; }
+              .status-caution { color: #d97706; font-weight: bold; }
+              .status-critical { color: #dc2626; font-weight: bold; }
+              
+              .footer { margin-top: 50px; font-size: 10px; color: #94a3b8; text-align: center; border-top: 1px solid #e2e8f0; padding-top: 20px; }
+            </style>
+          </head>
+          <body>
+            <div class="hospital-header">
+              <div>
+                <div class="brand">CORASSIST CLINICAL PLATFORM</div>
+                <div class="doc-type">Session Monitoring Report</div>
+              </div>
+              <div class="timestamp">Generated: ${timestamp}</div>
             </div>
-          </div>
 
-          <div class="section">
-            <div class="section-title">DIAGNOSTIC SUMMARY</div>
-            <div class="info-grid">
-              <div class="info-item"><span class="info-label">Session Avg Heart Rate:</span> ${avgHR} BPM</div>
-              <div class="info-item"><span class="info-label">Session Avg SpO2:</span> ${avgSpO2}%</div>
-              <div class="info-item"><span class="info-label">Current Risk Index:</span> ${liveState.risk_probability}%</div>
-              <div class="info-item"><span class="info-label">Last System Status:</span> <span class="status-${liveState.alert_level.toLowerCase()}">${liveState.alert_level.toUpperCase()}</span></div>
+            <div class="section-title">Patient Demographics</div>
+            <div class="grid">
+              <table class="demo-table">
+                <tr><td class="label">Name:</td><td>${patientProfile.name || 'Jane Doe'}</td></tr>
+                <tr><td class="label">Age / Sex:</td><td>${patientProfile.age || '45'}y / ${patientProfile.sex || 'Female'}</td></tr>
+              </table>
+              <table class="demo-table">
+                <tr><td class="label">Conditions:</td><td>${patientProfile.conditions || 'None Declared'}</td></tr>
+                <tr><td class="label">Blood Type:</td><td>${patientProfile.blood_type || 'O+'}</td></tr>
+              </table>
             </div>
-          </div>
 
-          <div class="section">
-            <div class="section-title">RECENT CLINICAL EVENTS</div>
-            <table>
+            <div class="section-title">Clinical Vitals Summary</div>
+            <div class="metrics-grid">
+              <div class="metric-box">
+                <div class="metric-val" style="color: #ef4444;">${liveState.heart_rate}</div>
+                <div class="metric-label">Heart Rate (BPM)</div>
+              </div>
+              <div class="metric-box">
+                <div class="metric-val" style="color: #3b82f6;">${liveState.hrv_sdnn}</div>
+                <div class="metric-label">HRV (SDNN)</div>
+              </div>
+              <div class="metric-box">
+                <div class="metric-val" style="color: #06b6d4;">${liveState.spo2}%</div>
+                <div class="metric-label">SpO2 (Oxygen)</div>
+              </div>
+              <div class="metric-box">
+                <div class="metric-val" style="color: ${liveState.risk_probability > 50 ? '#ef4444' : '#eab308'};">${liveState.risk_probability}%</div>
+                <div class="metric-label">Cardiac Risk Index</div>
+              </div>
+            </div>
+
+            <div class="section-title">Predictive Analytics & ODE Modeling</div>
+            <div class="analytics-card">
+              <div class="analytics-text">
+                <b>Stability Score:</b> ${liveState.stability_score}/100 <br/>
+                <b>Decay Parameter (k):</b> ${liveState.ode_k.toFixed(3)} <br/>
+                <b>Clinical Assessment:</b> ${liveState.risk_probability > 60 ? "Elevated risk detected. Monitor closely for instability." : "Heart rate variability remains within stable physiological bounds. No critical decay detected."}
+                ${liveState.risk_window_minutes ? `<br/><b>Projected Risk Window:</b> ${liveState.risk_window_minutes} minutes.` : ""}
+              </div>
+            </div>
+
+            <div class="section-title">Recent Clinical Events</div>
+            <table class="events">
               <thead>
                 <tr>
-                  <th>Timestamp</th>
-                  <th>Alert Level</th>
-                  <th>Rhythm Pattern</th>
+                  <th>Time (Sec)</th>
+                  <th>Clinical Status</th>
+                  <th>Classification</th>
+                  <th>Stability</th>
                   <th>HR (BPM)</th>
                   <th>Risk %</th>
                 </tr>
               </thead>
               <tbody>
-                ${events.slice(0, 15).map(e => `
+                ${history.slice(-15).reverse().map(event => `
                   <tr>
-                    <td>${e.time}</td>
-                    <td class="status-${e.level.toLowerCase()}">${e.level.toUpperCase()}</td>
-                    <td>${e.pattern}</td>
-                    <td>${e.hr}</td>
-                    <td>${e.risk}</td>
+                    <td>${new Date(event.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</td>
+                    <td class="status-${(event.alert_level || 'Normal').toLowerCase()}">${(event.alert_level || 'Normal').toUpperCase()}</td>
+                    <td>${event.pattern_label}</td>
+                    <td>${event.stability_score}%</td>
+                    <td>${event.heart_rate} BPM</td>
+                    <td>${event.risk_probability}%</td>
                   </tr>
                 `).join('')}
               </tbody>
             </table>
-          </div>
 
-          <div class="footer">
-            Confidential Medical Report - Generated via Cardiac Companion App<br/>
-            This report is for informational purposes only. Consult a medical professional for diagnosis.
-          </div>
-        </body>
-      </html>
+            <div class="footer">
+              Confidential Medical Document - Authorized Use Only <br/>
+              CorAssist AI Clinical Platform | Session UID: ${liveState.timestamp} <br/>
+              © 2026 CorAssist Technologies. Generated via Mobile Companion v1.2.
+            </div>
+          </body>
+        </html>
       `;
-
       const { uri } = await Print.printToFileAsync({ html });
       await Sharing.shareAsync(uri, { UTI: '.pdf', mimeType: 'application/pdf' });
     } catch (error) {

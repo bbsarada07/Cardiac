@@ -7,6 +7,7 @@ from .modules.stability_score import StabilityAnalyzer
 from .modules.qt_detection import QTDetection
 from .modules.prediction_engine import RiskPredictor
 from .modules.calibration import BaselineCalibration
+from .modules.adaptive_thresholds import AdaptiveThresholdManager
 
 class SensorFusionEngine:
     """
@@ -20,8 +21,8 @@ class SensorFusionEngine:
         nyq = 0.5 * self.fs
         self.b, self.a = butter(2, [0.5 / nyq, 40.0 / nyq], btype='band')
         
-        self.raw_buffer = np.zeros(self.fs * 4) 
-        self.filtered_buffer = np.zeros(self.fs * 4)
+        self.raw_buffer = np.zeros(self.fs * 10) 
+        self.filtered_buffer = np.zeros(self.fs * 10)
         
         # Beat Tracking
         self.threshold = 0
@@ -38,6 +39,7 @@ class SensorFusionEngine:
         self.qt_detector = QTDetection(self.fs)
         self.predictor = RiskPredictor()
         self.calibration = BaselineCalibration(self.fs, calibration_seconds=60)
+        self.adaptive_thresholds = AdaptiveThresholdManager(metrics=["hr", "sdnn", "stability"])
         
         # State variables
         self.current_hr = 0
@@ -117,6 +119,16 @@ class SensorFusionEngine:
                     # Feature 5: Inject to Calibration Memory
                     self.calibration.add_data(self.current_hr, self.current_sdnn, self.current_stability)
                     
+                    if is_calibrating:
+                        self.adaptive_thresholds.add_calibration_point("hr", self.current_hr)
+                        self.adaptive_thresholds.add_calibration_point("sdnn", self.current_sdnn)
+                        self.adaptive_thresholds.add_calibration_point("stability", self.current_stability)
+                    else:
+                        # Slow drift update
+                        self.adaptive_thresholds.update_drift("hr", self.current_hr)
+                        self.adaptive_thresholds.update_drift("sdnn", self.current_sdnn)
+                        self.adaptive_thresholds.update_drift("stability", self.current_stability)
+                    
                     # Feature 4: Base Risk Prediction %
                     base_risk = self.predictor.calculate_risk(
                         self.current_hr, self.current_sdnn, self.current_stability, 
@@ -157,5 +169,6 @@ class SensorFusionEngine:
             "risk_pct": self.current_risk,
             "is_calibrating": is_calibrating,
             "cal_progress": self.calibration.get_progress_percent(),
-            "spo2": spo2_val
+            "spo2": spo2_val,
+            "adaptive_thresholds": self.adaptive_thresholds.get_threshold_summary()
         }

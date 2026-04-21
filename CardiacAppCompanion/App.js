@@ -40,7 +40,7 @@ export default function App() {
       <StatusBar barStyle="light-content" />
 
       <View style={styles.header}>
-        <Text style={styles.title}>Cardiac Dashboard</Text>
+        <Text style={styles.title}>CorAssist Dashboard</Text>
         <Text style={styles.subtitle}>Live Patient Monitoring (Placeholder)</Text>
       </View>
 

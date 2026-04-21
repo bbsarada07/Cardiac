@@ -95,7 +95,7 @@ class DashboardV3(DashboardUI):
         
     def init_ui(self):
         # We handle window properties directly to avoid double-initialization
-        self.setWindowTitle("V3.0 Predictive Cardiac Early-Warning System (Bio-FEA Edition)")
+        self.setWindowTitle("CorAssist Clinical Monitor - Early-Warning System")
         self.resize(1600, 950) 
         self.setStyleSheet("background-color: #0f172a; color: #f8fafc;")
         
@@ -117,7 +117,7 @@ class DashboardV3(DashboardUI):
         
         # --- TOP BAR ---
         top_bar = QHBoxLayout()
-        title = QLabel("BIO-FEA CARDIAC CLINICAL PLATFORM V4.0")
+        title = QLabel("CORASSIST CLINICAL PLATFORM V4.0")
         title.setFont(QFont("Arial", 16, QFont.Bold))
         title.setStyleSheet("color: #38bdf8;")
         
@@ -162,10 +162,14 @@ class DashboardV3(DashboardUI):
         
         # -- COLUMN 0: LIVE FEEDS --
         col0 = QVBoxLayout()
-        self.alert_banner = QLabel("SYSTEM STANDBY")
-        self.alert_banner.setFont(QFont("Arial", 18, QFont.Bold))
+        self.alert_banner = QLabel("SYSTEM STANDBY: 0%")
+        self.alert_banner.setFont(QFont("Arial", 22, QFont.Bold))
         self.alert_banner.setAlignment(Qt.AlignCenter)
-        self.alert_banner.setStyleSheet("background-color: #334155; padding: 10px;")
+        self.alert_banner.setStyleSheet("background-color: #1e293b; padding: 10px; color: #38bdf8;")
+        
+        self.driving_engine_label = QLabel("Primary Engine: Mathematical Stability")
+        self.driving_engine_label.setAlignment(Qt.AlignCenter)
+        self.driving_engine_label.setStyleSheet("color: #64748b; font-size: 11px; margin-bottom: 5px;")
         
         self.cal_bar = QProgressBar() # Required by base class updates
         self.cal_bar.setValue(0)
@@ -187,6 +191,7 @@ class DashboardV3(DashboardUI):
         self.ode_plot.addItem(self.ode_text)
 
         col0.addWidget(self.alert_banner)
+        col0.addWidget(self.driving_engine_label)
         col0.addWidget(self.cal_bar)
         col0.addWidget(self.ecg_plot, stretch=2)
         col0.addWidget(self.ode_plot, stretch=1)
@@ -228,12 +233,52 @@ class DashboardV3(DashboardUI):
         self.status_msg.setAlignment(Qt.AlignCenter)
         self.status_msg.setStyleSheet("color: #94a3b8; font-size: 14px; italic;")
         
+        self.status_msg.setStyleSheet("color: #94a3b8; font-size: 14px; italic;")
+        
+        self.morphology_label = QLabel("ECG Morphology: Normal")
+        self.morphology_label.setFont(QFont("Arial", 12, QFont.Bold))
+        self.morphology_label.setStyleSheet("color: #38bdf8;")
+        
         fb_layout.addWidget(QLabel("AI PATTERN CLASSIFICATION"))
         fb_layout.addWidget(self.pattern_label)
         fb_layout.addWidget(self.status_msg)
+        fb_layout.addWidget(self.morphology_label)
+        
+        # Feature: AI Engine Status
+        ai_frame = QFrame()
+        ai_frame.setStyleSheet("background-color: #0f172a; border: 1px solid #6366f1; padding: 5px; border-radius: 5px;")
+        ai_layout = QVBoxLayout(ai_frame)
+        ai_title = QLabel("AI ENGINE STATUS")
+        ai_title.setStyleSheet("color: #818cf8; font-weight: bold;")
+        self.rf_status_label = QLabel("BASE: Calibrating...")
+        self.rf_status_label.setStyleSheet("color: #4ade80; font-size: 14px; font-weight: bold; background-color: #022c22; padding: 2px;")
+        self.ai_status_label = QLabel("Models: ---")
+        self.ai_training_label = QLabel("Training: ---")
+        self.ai_update_label = QLabel("Last Update: ---")
+        self.ai_status_label.setStyleSheet("color: #cbd5e1; font-size: 11px;")
+        self.ai_training_label.setStyleSheet("color: #cbd5e1; font-size: 11px;")
+        self.ai_update_label.setStyleSheet("color: #cbd5e1; font-size: 11px;")
+        
+        # Adaptive Thresholds Label
+        self.adaptive_label = QLabel("Personal Normal: Calibrating...")
+        self.adaptive_label.setStyleSheet("color: #818cf8; font-size: 11px; margin-top: 5px;")
+        self.adaptive_label.setWordWrap(True)
+        
+        # Federated Status Label
+        self.federated_status_label = QLabel("Global Research: Opt-Out")
+        self.federated_status_label.setStyleSheet("color: #94a3b8; font-size: 10px; font-style: italic; margin-top: 5px;")
+        
+        ai_layout.addWidget(ai_title)
+        ai_layout.addWidget(self.rf_status_label)
+        ai_layout.addWidget(self.ai_status_label)
+        ai_layout.addWidget(self.ai_training_label)
+        ai_layout.addWidget(self.ai_update_label)
+        ai_layout.addWidget(self.adaptive_label)
+        ai_layout.addWidget(self.federated_status_label)
         
         col1.addWidget(self.history_plot, stretch=2)
         col1.addWidget(feedback_panel, stretch=1)
+        col1.addWidget(ai_frame, stretch=0)
         
         # -- COLUMN 2: SIDEBAR METRICS --
         col2 = QVBoxLayout()
@@ -243,9 +288,12 @@ class DashboardV3(DashboardUI):
         self.hr_val = self.create_metric_box(metrics_grid, "HEART RATE", "--", 0, 0)
         self.hrv_val = self.create_metric_box(metrics_grid, "HRV (SDNN)", "--", 0, 1)
         self.spo2_val = self.create_metric_box(metrics_grid, "SpO2 %", "--", 1, 0)
-        self.stab_val = self.create_metric_box(metrics_grid, "STABILITY", "100", 1, 1)
+        self.stab_val = self.create_metric_box(metrics_grid, "MATH SCORE", "100", 1, 1)
         self.qtc_val = self.create_metric_box(metrics_grid, "QTc (ms)", "--", 2, 0)
         self.resp_val = self.create_metric_box(metrics_grid, "RESPIRATION", "--", 2, 1)
+        
+        self.ai_pred_val = self.create_metric_box(metrics_grid, "AI PRED (5m)", "--", 3, 0)
+        self.ai_conf_val = self.create_metric_box(metrics_grid, "AI CONFIDENCE", "--", 3, 1)
         
         # Feature D: Signal Quality
         sq_frame = QFrame()
@@ -295,9 +343,37 @@ class DashboardV3(DashboardUI):
         self.event_list.setStyleSheet("background-color: #1e293b; color: #f8fafc;")
         self.event_list.setFixedHeight(60)
         
+        xai_frame = QFrame()
+        xai_frame.setStyleSheet("background-color: #1e293b; border-radius: 5px; padding: 10px; border: 1px solid #c084fc;")
+        xai_layout = QVBoxLayout(xai_frame)
+        xai_title = QLabel("AI LOGIC & FEATURE ATTRIBUTION")
+        xai_title.setFont(QFont("Arial", 10, QFont.Bold))
+        xai_title.setStyleSheet("color: #c084fc; margin-bottom: 5px;")
+        xai_layout.addWidget(xai_title)
+        
+        self.xai_bars = {}
+        features = ["Mathematical Stability", "Predictive Future", "Anomaly Baseline", "Waveform Morphology", "Adaptive Drift"]
+        
+        for feat in features:
+            f_layout = QHBoxLayout()
+            lbl = QLabel(feat)
+            lbl.setStyleSheet("color: #94a3b8; font-size: 9px;")
+            pbar = QProgressBar()
+            pbar.setFixedHeight(6)
+            pbar.setTextVisible(False)
+            pbar.setStyleSheet("""
+                QProgressBar { background-color: #0f172a; border-radius: 3px; border: none; }
+                QProgressBar::chunk { background-color: #a855f7; border-radius: 3px; }
+            """)
+            self.xai_bars[feat] = pbar
+            f_layout.addWidget(lbl, 3)
+            f_layout.addWidget(pbar, 2)
+            xai_layout.addLayout(f_layout)
+
         col2.addLayout(metrics_grid)
         col2.addWidget(sq_frame)
         col2.addWidget(risk_frame)
+        col2.addWidget(xai_frame)
         col2.addWidget(self.risk_window_label)
         col2.addWidget(self.artifact_label)
         col2.addWidget(info_frame)
@@ -328,6 +404,20 @@ class DashboardV3(DashboardUI):
         if not hasattr(self, 'draw_counter'):
             self.draw_counter = 0
         self.draw_counter += 1
+        
+        risk = data.get('risk_pct', 0)
+        risk_color = "#4ade80" if risk < 30 else "#fbbf24" if risk < 60 else "#ef4444"
+        
+        self.alert_banner.setText(f"ENSEMBLE RISK: {int(risk)}%")
+        self.alert_banner.setStyleSheet(f"background-color: #1e293b; padding: 10px; color: {risk_color}; border: 1px solid {risk_color};")
+        
+        force = data.get('ensemble_driving_force', 'Stability Engine')
+        self.driving_engine_label.setText(f"DRIVING ENGINE: {force.upper()}")
+        
+        if data.get('is_calibrating', False):
+            self.alert_banner.setText("BASELINE CALIBRATION IN PROGRESS")
+            self.alert_banner.setStyleSheet("background-color: #1e293b; padding: 10px; color: #38bdf8;")
+            self.driving_engine_label.setText("Learning Personalized Baseline...")
         
         # Feature A: ODE Graph Update
         if 'ode_curve' in data:
@@ -360,6 +450,51 @@ class DashboardV3(DashboardUI):
         self.pattern_label.setText(data.get('ai_pattern', '---'))
         self.status_msg.setText(data.get('patient_msg', '---'))
         
+        # AI Metrics Updates
+        if 'ai_pred_score' in data:
+            self.ai_pred_val.setText(f"{data['ai_pred_score']}")
+            self.ai_pred_val.setStyleSheet("color: #c084fc; font-weight: bold;" if data['ai_pred_score'] > 60 else "color: #ef4444; font-weight: bold;")
+            self.ai_conf_val.setText(f"{data['ai_conf']}%")
+            self.ai_status_label.setText(f"Models: {data.get('ai_status', '---')}")
+            self.ai_training_label.setText(f"Data: {data.get('ai_training', '---')}")
+            self.ai_update_label.setText(f"Last Update: {data.get('ai_last_update', '---')}")
+        
+        if 'cnn_morphology' in data:
+            morph = data['cnn_morphology']
+            self.morphology_label.setText(f"ECG Morphology: {morph}")
+            if morph == "Normal":
+                self.morphology_label.setStyleSheet("color: #38bdf8;")
+            else:
+                self.morphology_label.setStyleSheet("color: #f87171; font-weight: bold;")
+            
+        if 'rf_label' in data:
+            label = data['rf_label']
+            self.rf_status_label.setText(f"BASE: {label}")
+            if label == "Normal":
+                self.rf_status_label.setStyleSheet("color: #4ade80; font-size: 14px; font-weight: bold; background-color: #064e3b; padding: 2px;")
+            elif label == "Early Warning":
+                self.rf_status_label.setStyleSheet("color: #fbbf24; font-size: 14px; font-weight: bold; background-color: #451a03; padding: 2px;")
+            elif label in ["High Risk", "Critical"]:
+                self.rf_status_label.setStyleSheet("color: #f87171; font-size: 14px; font-weight: bold; background-color: #450a0a; padding: 2px;")
+            else:
+                self.rf_status_label.setStyleSheet("color: #94a3b8; font-size: 14px; font-weight: bold; background-color: #0f172a; padding: 2px;")
+        
+        if 'adaptive_thresholds' in data:
+            ranges = data['adaptive_thresholds']
+            if ranges:
+                hr_r = ranges.get('hr', {}).get('range', (0, 0))
+                sdnn_r = ranges.get('sdnn', {}).get('range', (0, 0))
+                self.adaptive_label.setText(f"Personal Normal:\nHR: {hr_r[0]}-{hr_r[1]} bpm | HRV: {sdnn_r[0]}-{sdnn_r[1]} ms")
+            else:
+                self.adaptive_label.setText("Personal Normal: Calibrating...")
+
+        if 'federated_status' in data:
+            self.federated_status_label.setText(f"Global Research: {data['federated_status']}")
+            if "Opt-In" in data['federated_status'] or "Sync" in data['federated_status']:
+                self.federated_status_label.setStyleSheet("color: #818cf8; font-size: 10px; font-style: italic; border-top: 1px solid #1e293b; padding-top: 3px;")
+            else:
+                self.federated_status_label.setStyleSheet("color: #94a3b8; font-size: 10px; font-style: italic; border-top: 1px solid #1e293b; padding-top: 3px;")
+        
         # Feature F: Timer
         self.session_time_label.setText(f"Session: {data.get('session_timer', '00:00:00')}")
         
@@ -382,6 +517,12 @@ class DashboardV3(DashboardUI):
             self.patient_name_label.setText(p['name'])
             self.patient_info_label.setText(f"{p['age']} y/o {p['sex']}\n{p['conditions']}")
 
+        if 'xai_attrib' in data:
+            attrib = data['xai_attrib']
+            for feat, val in attrib.items():
+                if feat in self.xai_bars:
+                    self.xai_bars[feat].setValue(val)
+        
         # Feature L: History Graph
         if 'history' in data:
             t, hr, stab, risk, alert_t = data['history']

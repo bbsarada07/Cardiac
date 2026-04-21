@@ -11,7 +11,7 @@ const { width } = Dimensions.get('window');
 const SLIDES = [
   {
     title: "Clinical Awareness",
-    desc: "Welcome to the Bio-Fea Clinical Platform. This system transforms raw ECG signals into real-time cardiac safety metrics.",
+    desc: "Welcome to the CorAssist Clinical Platform. This system transforms raw ECG signals into real-time cardiac safety metrics.",
     icon: "monitor-heart",
     color: "#3B82F6"
   },

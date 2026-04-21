@@ -34,8 +34,12 @@ export interface PatientProfile {
   sex: string;
   conditions: string;
   blood_type: string;
-  emergency_contact: string;
-  emergency_phone: string;
+  contact1_name: string;
+  contact1_phone: string;
+  contact2_name: string;
+  contact2_phone: string;
+  contact3_name: string;
+  contact3_phone: string;
   monitorIp: string;
 }
 
@@ -69,8 +73,12 @@ const DEFAULT_PROFILE: PatientProfile = {
   sex: "",
   conditions: "",
   blood_type: "",
-  emergency_contact: "",
-  emergency_phone: "",
+  contact1_name: "",
+  contact1_phone: "",
+  contact2_name: "",
+  contact2_phone: "",
+  contact3_name: "",
+  contact3_phone: "",
   monitorIp: "192.168.1.100"
 };
 

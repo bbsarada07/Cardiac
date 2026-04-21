@@ -28,6 +28,8 @@ class SettingsPanel(QWidget):
         self.crit_sp = QLineEdit("90")
         self.night_mode_cb = QCheckBox("Enable Night Mode (Reduces sensitivity)")
         self.offline_mode_cb = QCheckBox("Enable Offline Fallback Alarm", checked=True)
+        self.federated_cb = QCheckBox("Participate in Global Research (Federated Learning)", checked=False)
+        self.federated_cb.setStyleSheet("color: #818cf8; font-weight: bold;")
         
         for w in [self.min_hr, self.max_hr, self.crit_sp]:
             w.setStyleSheet("background-color: #1e293b; padding: 5px;")
@@ -37,6 +39,7 @@ class SettingsPanel(QWidget):
         form.addRow(QLabel("Critical SpO2 (%):"), self.crit_sp)
         form.addRow(self.night_mode_cb)
         form.addRow(self.offline_mode_cb)
+        form.addRow(self.federated_cb)
         
         layout.addLayout(form)
         
@@ -62,6 +65,7 @@ class SettingsPanel(QWidget):
             "max_hr": int(self.max_hr.text()) if self.max_hr.text().isdigit() else 150,
             "crit_sp": int(self.crit_sp.text()) if self.crit_sp.text().isdigit() else 90,
             "night_mode": self.night_mode_cb.isChecked(),
-            "offline_mode": self.offline_mode_cb.isChecked()
+            "offline_mode": self.offline_mode_cb.isChecked(),
+            "federated_opt_in": self.federated_cb.isChecked()
         }
         self.settings_saved.emit(data)
