@@ -161,3 +161,6 @@ CorAssist is designed as a **software-first, sensor-agnostic** platform. While c
 
 ---
 
+## Licence
+
+MIT Licence — free to use, modify, and distribute with attribution.
