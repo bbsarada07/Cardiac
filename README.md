@@ -18,6 +18,34 @@ Current cardiovascular monitoring systems are **fundamentally reactive**. Most e
 The platform provides a 5-minute predictive window, allowing for autonomous emergency dispatches and local alerts. **If the help is given at the right time the user will be saved.**
 
 ---
+## Project Structure 
+```text
+CorAssist/
+├── backend/                      # Python WebSocket Server & Analytics Engine
+│   ├── math_engine/              # ODE predictive algorithms and hysteresis logic
+│   ├── simulation/               # Mock data generators (ECG waveforms, HRV decay)
+│   ├── main.py                   # Async WebSocket server and SOS Twilio router
+│   └── requirements.txt          # Python dependencies (websockets, asyncio)
+│
+├── frontend/                     # React Native (Expo) Mobile Application
+│   ├── assets/                   # App icons, splash screens, and localized assets
+│   ├── src/                      
+│   │   ├── components/           # Reusable UI (EmergencyAlert, VitalsCard, ProgressBar)
+│   │   ├── context/              # Global state management (ThemeContext)
+│   │   ├── navigation/           # React Navigation stack routing
+│   │   ├── screens/              # Main Views (WelcomeScreen, Dashboard, Settings)
+│   │   └── utils/                # Helper functions (PDF Generator, GPS Fetcher)
+│   ├── App.tsx                   # Frontend entry point
+│   ├── app.json                  # Expo configuration bundle
+│   └── package.json              # Node dependencies (expo-location, expo-print)
+│
+├── hardware/                     # (Future Scope) Physical Sensor Node
+│   └── ad8232_firmware.ino       # Microcontroller code for the AD8232 ECG sensor
+│
+├── .env                          # Environment variables (Twilio keys, Local IP)
+└── README.md                     # Project documentation and setup guide
+```
+---
 
 ## 🏛️ System Architecture
 ```text
