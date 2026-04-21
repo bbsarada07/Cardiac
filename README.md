@@ -94,7 +94,7 @@ CorAssist/
 | **Communication** | WebSockets | Facilitates real-time Mobile Companion synchronization. |
 | | Twilio | Broadcasts autonomous Emergency SOS alerts. |
 
-### 📱 Software Tech Stack
+###  Software Tech Stack (Mobile App)
 
 | Category | Technology & Frameworks |
 | :--- | :--- |
@@ -109,7 +109,7 @@ CorAssist/
 
 <br>
 
-### ⚙️ Hardware Node Components
+###  Hardware Node Components
 
 | Component Module | Hardware Specification & Purpose |
 | :--- | :--- |
