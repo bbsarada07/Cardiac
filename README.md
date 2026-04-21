@@ -19,6 +19,35 @@ The platform provides a 5-minute predictive window, allowing for autonomous emer
 
 ---
 
+## 🏛️ System Architecture
+
+CorAssist employs a multi-layered Intelligence architecture designed for high-fidelity clinical monitoring and zero-latency local inference:
+
+1.  **Data Acquisition Layer**: Captures high-frequency electrical signals via AD8232 sensors or the integrated high-fidelity Bio-Simulation engine (200Hz sampling).
+2.  **Signal Processing Layer**: Real-time digital filtering (Butterworth) and artifact detection to isolate the clean QRS complex from baseline wander and muscular noise.
+3.  **Hybrid Intelligence Layer**: 
+    -   **Lyapunov Stability Engine**: Uses non-linear mathematical modeling to calculate heart-system entropy.
+    -   **Deep Learning Predictor (LSTM)**: Analyzes time-series HRV to predict stability 5 minutes into the future.
+    -   **1D CNN Morphology Monitor**: Scans raw waveforms for malignant patterns (ST-Elevation, PVCs).
+4.  **Ensemble Consensus Layer**: Aggregates all mathematical and AI signals into a single "Ensemble Risk Score" with a safety-first "Critical Override" override logic.
+5.  **Alert & Action Layer**: Triggers local voice synthesis alerts, updates the real-time XAI dashboard, and broadcasts encrypted SOS packets via Firebase and Twilio.
+
+---
+
+## 💻 Technical Stack
+
+-   **Core Backend**: Python 3.10+ (Logic, DSP, and AI Inference)
+-   **AI & Neural Frameworks**: 
+    -   **PyTorch**: Powers the LSTM Predictor and 1D ResNet-style CNN Morphology models.
+    -   **Scikit-Learn**: Drives the Random Forest personal baseline classifier.
+-   **Signal Processing**: NumPy & SciPy (High-frequency signal analytics).
+-   **Visualization & Dashboard**: PyQt5 & PyQtGraph (Medical-grade real-time plotting and high-FPS GUI).
+-   **Cloud & Persistence**: Firebase Realtime DB (Remote Sync), SQLite (Local Clinical Persistence).
+-   **Communication**: WebSockets (Real-time Mobile Companion sync), Twilio (Emergency SOS).
+
+
+---
+
 ## 🚀 Key Features
 
 - **🧠 Hybrid Intelligence Engine**: Combines Lyapunov mathematical stability scores with a **Long Short-Term Memory (LSTM)** network to predict future heart rate variability (HRV) trends.
