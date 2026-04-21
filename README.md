@@ -1,4 +1,4 @@
-# Cardiac — BIO-FEA Cardiac Clinical Platform
+# CorAssist
 
 A real-time cardiac arrest early-warning system combining 
 first-year engineering mathematics, embedded hardware, 
