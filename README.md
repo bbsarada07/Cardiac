@@ -9,27 +9,27 @@
 
 ---
 
-## 🚩 Problem Statement: The Reactive Gap
+##  Problem Statement: The Reactive Gap
 Current cardiovascular monitoring systems are **fundamentally reactive**. Most existing devices are designed to detect an event (like a cardiac arrest or severe arrhythmia) only *after* it has already occurred. In these critical situations, every second counts, and waiting for a catastrophic event to trigger a response often leads to preventable fatalities. There is a massive clinical void for a proactive system that predicts instability *before* the heart fails.
 
-## 💡 Our Solution: The Predictive Bridge
+##  Our Solution: The Predictive Bridge
 **CorAssist** transforms cardiac monitoring from reactive to preventive. By layering advanced machine learning (LSTM Time-Series Prediction, 1D CNN Waveform Analysis) on top of rigorous mathematical stability models (Lyapunov Exponents), CorAssist identifies subtle physiological "drifts" that precede a cardiac event.
 
 The platform provides a 5-minute predictive window, allowing for autonomous emergency dispatches and local alerts. **If the help is given at the right time the user will be saved.**
 
 ---
 
-## 🚀 Key Features
+##  Key Features
 
-- **🧠 Hybrid Intelligence Engine**: Combines Lyapunov mathematical stability scores with a **Long Short-Term Memory (LSTM)** network to predict future heart rate variability (HRV) trends.
-- **⚡ Real-Time CNN Morphology**: A 1D ResNet-style Convolutional Neural Network that scans raw ECG waveforms (200Hz) to detect PVCs, ST Elevation, and other dangerous electrical patterns instantly.
-- **🛡️ Adaptive Threshold Learning**: Moves beyond fixed clinical limits. CorAssist uses Gaussian baseline modeling to learn the user's "Personal Normal" and adapts to natural physiological drift.
-- **🚨 Autonomous Emergency Dispatch**: Integrated with Firebase and Twilio to trigger automatic SOS broadcasts with precise GPS location when a critical ensemble risk score (>90%) is reached.
-- **📊 XAI (Explainable AI) Panel**: A clinical-grade transparency layer that visualizes which features (Stability, Prediction, or Morphology) are driving the current risk assessment.
+- ** Hybrid Intelligence Engine**: Combines Lyapunov mathematical stability scores with a **Long Short-Term Memory (LSTM)** network to predict future heart rate variability (HRV) trends.
+- ** Real-Time CNN Morphology**: A 1D ResNet-style Convolutional Neural Network that scans raw ECG waveforms (200Hz) to detect PVCs, ST Elevation, and other dangerous electrical patterns instantly.
+- ** Adaptive Threshold Learning**: Moves beyond fixed clinical limits. CorAssist uses Gaussian baseline modeling to learn the user's "Personal Normal" and adapts to natural physiological drift.
+- ** Autonomous Emergency Dispatch**: Integrated with Firebase and Twilio to trigger automatic SOS broadcasts with precise GPS location when a critical ensemble risk score (>90%) is reached.
+- ** XAI (Explainable AI) Panel**: A clinical-grade transparency layer that visualizes which features (Stability, Prediction, or Morphology) are driving the current risk assessment.
 
 ---
 
-## 🛠️ Installation & Setup
+##  Installation & Setup
 
 To run the CorAssist Clinical Platform locally for evaluation:
 
@@ -68,7 +68,7 @@ python main.py
 
 ---
 
-## 📈 Future Scope & Scalability
+##  Future Scope & Scalability
 
 CorAssist is designed as a **software-first, sensor-agnostic** platform. While current testing uses ECG-grade telemetry, the core ensemble intelligence can be scaled to integrate with:
 - **Consumer Wearables**: Bringing hospital-grade predictive analytics to Apple Watch, Fitbit, and Garmin users.
@@ -77,10 +77,10 @@ CorAssist is designed as a **software-first, sensor-agnostic** platform. While c
 
 ---
 
-## 🏆 Hackathon Submission
+##  Hackathon Submission
 - **Event**: T-Hub Hyderabad Biggest AI Hackathon
 - **Theme**: Open Innovation
 - **Dev Post / Project ID**: [Insert Link Here]
 
 ---
-*Built with ❤️ for a safer heart.*
+*Built for a safer heart.*
