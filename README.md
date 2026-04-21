@@ -211,6 +211,7 @@ Start the Mobile Dashboard (Terminal 2):
 npx expo start
 ```
 5. Device Connection & Calibration
+   
 Open the Expo Go app on your physical mobile device.
 
 Scan the QR code generated in Terminal 2 to bundle and load the JavaScript.
