@@ -21,16 +21,33 @@ The platform provides a 5-minute predictive window, allowing for autonomous emer
 
 ## 🏛️ System Architecture
 
-CorAssist employs a multi-layered Intelligence architecture designed for high-fidelity clinical monitoring and zero-latency local inference:
-
-1.  **Data Acquisition Layer**: Captures high-frequency electrical signals via AD8232 sensors or the integrated high-fidelity Bio-Simulation engine (200Hz sampling).
-2.  **Signal Processing Layer**: Real-time digital filtering (Butterworth) and artifact detection to isolate the clean QRS complex from baseline wander and muscular noise.
-3.  **Hybrid Intelligence Layer**: 
-    -   **Lyapunov Stability Engine**: Uses non-linear mathematical modeling to calculate heart-system entropy.
-    -   **Deep Learning Predictor (LSTM)**: Analyzes time-series HRV to predict stability 5 minutes into the future.
-    -   **1D CNN Morphology Monitor**: Scans raw waveforms for malignant patterns (ST-Elevation, PVCs).
-4.  **Ensemble Consensus Layer**: Aggregates all mathematical and AI signals into a single "Ensemble Risk Score" with a safety-first "Critical Override" override logic.
-5.  **Alert & Action Layer**: Triggers local voice synthesis alerts, updates the real-time XAI dashboard, and broadcasts encrypted SOS packets via Firebase and Twilio.
+CorAssist/
+├── backend/                     # Python 3.10+ Core Backend Logic
+│   ├── data_acquisition/        # High-frequency signal capture (200Hz)
+│   │   ├── sensors.py           # AD8232 sensor integrations
+│   │   └── bio_sim.py           # Integrated high-fidelity Bio-Simulation engine
+│   ├── signal_processing/       # NumPy & SciPy signal analytics
+│   │   ├── filters.py           # Real-time digital filtering (Butterworth)
+│   │   └── artifact_removal.py  # Isolates clean QRS complex from noise
+│   ├── intelligence/            # Hybrid AI & Mathematical Modeling Layer
+│   │   ├── lyapunov.py          # Non-linear math modeling for heart-system entropy
+│   │   ├── lstm_predictor.py    # PyTorch: 5-min future HRV prediction
+│   │   ├── cnn_morphology.py    # PyTorch: 1D ResNet scans for malignant patterns
+│   │   └── baseline_rf.py       # Scikit-Learn: Random Forest personal baseline
+│   ├── consensus/               # Aggregation & Decision Logic
+│   │   ├── ensemble_score.py    # Aggregates AI signals into single Risk Score
+│   │   └── override.py          # Safety-first Critical Override logic
+│   ├── database/                # Persistence & Cloud Sync
+│   │   ├── local_db.py          # SQLite for local clinical persistence
+│   │   └── remote_sync.py       # Firebase Realtime DB remote synchronization
+│   ├── communication/           # External Alerts & Sync
+│   │   ├── websocket_mgr.py     # Real-time Mobile Companion sync
+│   │   └── emergency.py         # Twilio encrypted SOS broadcast & local voice alerts
+│   └── main.py                  # Core pipeline orchestration
+├── dashboard/                   # Real-time XAI Clinical Dashboard
+│   ├── ui_components.py         # PyQt5 medical-grade interface layouts
+│   └── plots.py                 # PyQtGraph real-time high-FPS waveform plotting
+└── requirements.txt             # Dependencies (torch, numpy, scipy, pyqt5, etc.)
 
 ---
 
