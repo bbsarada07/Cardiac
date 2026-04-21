@@ -1,4 +1,4 @@
-# 🫀 CorAssist: Predictive Cardiac Safety Platform
+#  CorAssist: Predictive Cardiac Safety Platform
 ### *AI-Powered Real-Time Early Warning System for Cardiac Arrest*
 
 ![Python](https://img.shields.io/badge/Python-3.10%2B-blue?style=for-the-badge&logo=python)
@@ -9,10 +9,10 @@
 
 ---
 
-## 🚩 Problem Statement: The Reactive Gap
+##  Problem Statement: The Reactive Gap
 Current cardiovascular monitoring systems are **fundamentally reactive**. Most existing devices are designed to detect an event (like a cardiac arrest or severe arrhythmia) only *after* it has already occurred. In these critical situations, every second counts, and waiting for a catastrophic event to trigger a response often leads to preventable fatalities. There is a massive clinical void for a proactive system that predicts instability *before* the heart fails.
 
-## 💡 Our Solution: The Predictive Bridge
+##  Our Solution: The Predictive Bridge
 **CorAssist** transforms cardiac monitoring from reactive to preventive. By layering advanced machine learning (LSTM Time-Series Prediction, 1D CNN Waveform Analysis) on top of rigorous mathematical stability models (Lyapunov Exponents), CorAssist identifies subtle physiological "drifts" that precede a cardiac event.
 
 The platform provides a 5-minute predictive window, allowing for autonomous emergency dispatches and local alerts. **If the help is given at the right time the user will be saved.**
@@ -47,7 +47,7 @@ CorAssist/
 ```
 ---
 
-## 🏛️ System Architecture
+##  System Architecture
 ```text
 CorAssist/
 ├── backend/                     # Python 3.10+ Core Backend Logic
@@ -80,7 +80,7 @@ CorAssist/
 ---
 
 
-### 💻 Technical Stack
+###  Technical Stack
 
 | Category | Technology | Purpose & Description |
 | :--- | :--- | :--- |
@@ -153,46 +153,76 @@ CorAssist/
 - Employs shape-based visual indicators ensuring full usability for colour-blind patients
 ---
 
-## 🛠️ Installation & Setup
+## Installation & Setup
 
-To run the CorAssist Clinical Platform locally for evaluation:
+To evaluate the CorAssist Clinical Platform locally, you will need to configure and launch both the Python-based AI backend and the React Native mobile frontend.
+
+### Prerequisites
+Ensure your development environment has the following installed prior to setup:
+- **Git**: For version control and cloning the repository.
+- **Python (3.9 or higher)**: Required for the ODE mathematical engine, ML models, and WebSocket server.
+- **Node.js (v18+) & npm**: Required to build and serve the React Native frontend application.
+- **Expo Go App**: Installed on your physical iOS or Android testing device.
 
 ### 1. Clone the Repository
+Begin by cloning the source code to your local machine and navigating into the root directory:
 ```bash
-git clone https://github.com/bbsarada07/Cardiac.git
+git clone [https://github.com/bbsarada07/Cardiac.git](https://github.com/bbsarada07/Cardiac.git)
 cd Cardiac
 ```
-
-### 2. Set Up a Virtual Environment (Recommended)
-```bash
+2. Backend Setup (AI Engine & WebSockets)
+The backend handles the predictive calculus, machine learning inference, and telemetry routing. Navigate to the backend directory and establish an isolated virtual environment:
+```cd backend
 python -m venv venv
+
 # On Windows
 .\venv\Scripts\activate
-# On Linux/Mac
+
+# On Linux/macOS
 source venv/bin/activate
 ```
-
-### 3. Install Dependencies
-Install the core requirements first:
-```bash
+Install the core analytical dependencies:
+```
 pip install -r requirements.txt
 ```
+[IMPORTANT]
+PyTorch Dependency: CorAssist requires PyTorch for LSTM and CNN inference. If you do not have a dedicated NVIDIA GPU configured with CUDA on your machine, please install the CPU-optimized version to ensure smooth real-time performance:
+```
+pip install torch torchvision torchaudio --index-url [https://download.pytorch.org/whl/cpu](https://download.pytorch.org/whl/cpu)
+```
+3. Frontend Setup (React Native Dashboard)
+The frontend serves as the accessible clinical dashboard and autonomous proxy. Open a new, separate terminal window, navigate to the frontend directory, and install the required Node modules:
+```
+cd frontend
+npm install
+```
+4. Launch the Ecosystem
+You must run both servers simultaneously to establish the persistent bi-directional WebSocket connection.
 
-> [!IMPORTANT]
-> **PyTorch Dependency**: CorAssist requires PyTorch for AI inference. If you do not have a dedicated NVIDIA GPU, please install the CPU-optimized version to ensure smooth real-time performance:
-> ```bash
-> pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
-> ```
-
-### 4. Launch the Platform
-```bash
+Start the Backend Engine (Terminal 1):
+```
+# Ensure your virtual environment is still active
 python main.py
 ```
-*Note: If no hardware sensor is detected, the application will automatically enter **High-Fidelity Simulation Mode** for demonstration.*
+Note: If no physical AD8232 hardware sensor is detected via serial port, the application will automatically enter High-Fidelity Simulation Mode for demonstration purposes.
 
+Start the Mobile Dashboard (Terminal 2):
+```
+npx expo start
+```
+5. Device Connection & Calibration
+Open the Expo Go app on your physical mobile device.
+
+Scan the QR code generated in Terminal 2 to bundle and load the JavaScript.
+
+Once the application mounts, navigate to the Settings tab within CorAssist.
+
+Input your computer's local IPv4 address into the Monitor IP field to establish the live WSS telemetry link.
+
+Disable "Demo Mode" to initiate the 60-second baseline calibration for the adaptive Machine Learning thresholds.
 ---
 
-## 📈 Future Scope & Scalability
+##  Future Scope & Scalability
 
 CorAssist is designed as a **software-first, sensor-agnostic** platform. While current testing uses ECG-grade telemetry, the core ensemble intelligence can be scaled to integrate with:
 - **Consumer Wearables**: Bringing hospital-grade predictive analytics to Apple Watch, Fitbit, and Garmin users.
@@ -201,10 +231,10 @@ CorAssist is designed as a **software-first, sensor-agnostic** platform. While c
 
 ---
 
-## 🏆 Hackathon Submission
+##  Hackathon Submission
 - **Event**: T-Hub Hyderabad Biggest AI Hackathon
 - **Theme**: Open Innovation
-- **Dev Post / Project ID**: [Insert Link Here]
+- **Dev Post / Project ID**: CorAssist
 
 ---
 
