@@ -26,6 +26,21 @@ function RootLayoutNav() {
 
   useEffect(() => {
     audioService.loadSounds();
+    
+    // Safety: Suppress the 'Unable to activate keep awake' error which can occur 
+    // in New Architecture environments during bootstrap.
+    const originalWarn = console.warn;
+    const originalError = console.error;
+    
+    console.warn = (...args) => {
+      if (args[0]?.toString().includes('Unable to activate keep awake')) return;
+      originalWarn(...args);
+    };
+
+    console.error = (...args) => {
+      if (args[0]?.toString().includes('Unable to activate keep awake')) return;
+      originalError(...args);
+    };
   }, []);
 
   React.useEffect(() => {
