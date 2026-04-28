@@ -85,7 +85,11 @@ class WebSocketService {
     }
 
     try {
-      const targetUrl = `ws://${this.ipAddress}:${this.port}`;
+      let host = this.ipAddress;
+      if (Platform.OS === 'web' && (this.ipAddress === '192.168.1.100' || this.ipAddress === '127.0.0.1')) {
+        host = window.location.hostname;
+      }
+      const targetUrl = `ws://${host}:${this.port}`;
       this.ws = new WebSocket(targetUrl);
 
       this.ws.onopen = () => {

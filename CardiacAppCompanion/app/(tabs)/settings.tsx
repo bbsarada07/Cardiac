@@ -1,19 +1,22 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TextInput, Switch, TouchableOpacity, Platform, Alert, KeyboardTypeOptions } from 'react-native';
-import { useCardiacData } from '../../src/context/CardiacDataContext';
+import { View, Text, ScrollView, TouchableOpacity, TextInput, Switch, StyleSheet, Platform, Alert, KeyboardTypeOptions } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { useTheme } from '../../src/context/ThemeContext';
-
 import { AppContext } from '../../src/context/AppContext';
+import { useCardiacData } from '../../src/context/CardiacDataContext';
+import { useTheme } from '../../src/context/ThemeContext';
 import hapticService from '../../src/services/HapticService';
+import * as Clipboard from 'expo-clipboard';
+
 
 export default function SettingsScreen() {
   const { isDemoMode, setDemoMode, liveState, patientProfile, updatePatientProfile, saveProfileToDisk } = useCardiacData();
   const { theme, setTheme, colors } = useTheme();
   
   const { 
-    userPin, lockEnabled, saveSecuritySettings, setIpAddress 
+    userPin, lockEnabled, saveSecuritySettings, setIpAddress,
+    systemLanguage, setSystemLanguage, liveData
   } = React.useContext(AppContext);
+
 
   const [pinInput, setPinInput] = useState(userPin);
   const [exerciseMode, setExerciseMode] = useState(false);
@@ -48,6 +51,39 @@ export default function SettingsScreen() {
         </View>
       </View>
 
+      {/* NEW: Caregiver Mirroring Module */}
+      <View style={styles.section}>
+        <Text style={[styles.sectionHeader, { color: colors.subtext }]}>CAREGIVER MIRRORING</Text>
+        <View style={[styles.card, { backgroundColor: colors.card, padding: 16 }]}>
+          <Text style={{ color: colors.text, fontSize: 14, marginBottom: 8, fontWeight: '500' }}>
+            Allow a remote caregiver to monitor your vitals in real-time.
+          </Text>
+          <TouchableOpacity 
+            style={{ 
+              backgroundColor: colors.cardAlt, 
+              padding: 12, 
+              borderRadius: 8, 
+              flexDirection: 'row', 
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderWidth: 1,
+              borderColor: colors.primary
+            }}
+            onPress={async () => {
+              const session = liveData.caregiver_session || "care-9941";
+              const link = `https://corassist-monitor.io/mirror/${session}`;
+              await Clipboard.setStringAsync(link);
+              hapticService.triggerImpact();
+              Alert.alert("Link Generated", "Caregiver mirror link copied to your clipboard. Send it via WhatsApp or Email.");
+            }}
+          >
+            <MaterialIcons name="share" size={20} color={colors.primary} style={{ marginRight: 8 }} />
+            <Text style={{ color: colors.primary, fontWeight: 'bold' }}>SHARE LIVE MONITOR LINK</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+
+
       <TouchableOpacity 
         style={[styles.saveButton, { backgroundColor: colors.primary }]}
         onPress={async () => {
@@ -72,18 +108,11 @@ export default function SettingsScreen() {
         <Text style={[styles.sectionHeader, { color: colors.subtext }]}>BEHAVIOUR & NETWORK</Text>
         <View style={[styles.card, { backgroundColor: colors.card }]}>
           <ToggleField 
-            label="Enable Demo Mode" 
-            sub="Simulates a 4-minute cardiac attack"
+            label="Developer/Demo Mode" 
+            sub="Simulates a 60s cardiac event for hackathon/testing"
             value={isDemoMode} 
             onValueChange={setDemoMode} 
-            icon="science"
-          />
-          <ToggleField 
-            label="Exercise Mode" 
-            sub="Mutes alerts for elevated heart rate"
-            value={exerciseMode} 
-            onValueChange={setExerciseMode} 
-            icon="directions-run"
+            icon="bug-report"
           />
           <ToggleField 
             label="Dark Theme" 
@@ -93,14 +122,41 @@ export default function SettingsScreen() {
             icon="dark-mode"
           />
           <InputField 
-            label="Monitor IP Address" 
-            value={patientProfile?.monitorIp || ""} 
-            onChangeText={t => updatePatientProfile({ monitorIp: t })} 
+            label="Monitor IP Address"
+            value={patientProfile?.monitorIp || ""}
+            onChangeText={t => updatePatientProfile({ monitorIp: t })}
             placeholder="192.168.1.X"
             isLast
           />
+          <View style={[styles.borderBottom, { borderBottomColor: colors.border, paddingVertical: 14, paddingHorizontal: 16 }]}>
+            <Text style={[styles.toggleLabel, { color: colors.text, marginBottom: 12 }]}>Assistive Voice Language</Text>
+            <View style={{ flexDirection: 'row', gap: 10 }}>
+              {['en', 'te', 'hi'].map((lang) => (
+                <TouchableOpacity 
+                  key={lang}
+                  onPress={() => {
+                    setSystemLanguage(lang);
+                    hapticService.triggerImpact();
+                  }}
+                  style={{
+                    paddingHorizontal: 16,
+                    paddingVertical: 8,
+                    borderRadius: 20,
+                    backgroundColor: systemLanguage === lang ? colors.primary : colors.cardAlt,
+                    borderWidth: 1,
+                    borderColor: systemLanguage === lang ? colors.primary : colors.border
+                  }}
+                >
+                  <Text style={{ color: systemLanguage === lang ? '#FFF' : colors.text, fontWeight: 'bold', textTransform: 'uppercase' }}>
+                    {lang === 'en' ? 'English' : (lang === 'te' ? 'తెలుగు' : 'हिंदी')}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
         </View>
       </View>
+
 
       {/* Security Module (Feature 12) */}
       <View style={styles.section}>

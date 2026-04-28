@@ -47,9 +47,10 @@ class AdaptiveThresholdManager:
         diff = abs(value - self.stats[metric_name]["mean"])
         self.stats[metric_name]["std"] = (1 - self.learning_rate) * self.stats[metric_name]["std"] + self.learning_rate * diff
 
-    def check_breach(self, metric_name, value):
+    def check_breach(self, metric_name, value, multiplier=1.0):
         """
-        Checks if the value is outside the 2-sigma personalized threshold.
+        Checks if the value is outside the personalized threshold.
+        Default is 2-sigma. Multiplier allows dynamic widening (e.g. 3-sigma during exercise).
         Returns: (is_breached, z_score, range_tuple)
         """
         if metric_name not in self.stats or not self.stats[metric_name]["is_ready"]:
@@ -59,10 +60,11 @@ class AdaptiveThresholdManager:
         std = max(1.0, self.stats[metric_name]["std"]) # Avoid division by zero
         
         z_score = (value - mean) / std
-        is_breached = abs(z_score) > 2.0
+        threshold = 2.0 * multiplier
+        is_breached = abs(z_score) > threshold
         
-        lower = max(0, mean - 2 * std)
-        upper = mean + 2 * std
+        lower = max(0, mean - threshold * std)
+        upper = mean + threshold * std
         
         return is_breached, z_score, (lower, upper)
 

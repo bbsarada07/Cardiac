@@ -2,7 +2,10 @@ import React, { createContext, useContext, useState, useEffect, useRef } from 'r
 import { ref, onValue, off, update } from 'firebase/database';
 import { database } from '../services/firebaseConfig';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Accelerometer } from 'expo-sensors';
+import { Platform } from 'react-native';
 import { AppContext } from './AppContext';
+import wsService from '../services/WebSocketService';
 
 export interface CardiacLiveState {
   stability_score: number;
@@ -26,7 +29,11 @@ export interface CardiacLiveState {
   isDataLive: boolean;
   respiration: number;
   battery_status?: { percent: number; is_critical: boolean };
+  activity_context: "Resting" | "Exercise" | "Unknown";
+  motion_intensity: number;
+  caregiver_session?: string;
 }
+
 
 export interface PatientProfile {
   name: string;
@@ -65,6 +72,8 @@ const DEFAULT_STATE: CardiacLiveState = {
   timestamp: 0,
   isDataLive: false,
   battery_status: { percent: 100, is_critical: false },
+  activity_context: "Resting",
+  motion_intensity: 0.0
 };
 
 const DEFAULT_PROFILE: PatientProfile = {
@@ -148,55 +157,68 @@ export const CardiacProvider: React.FC<{ children: React.ReactNode }> = ({ child
     let watchdogInterval: any;
 
     if (isDemoMode) {
-      // Demo Mode Logic
+      // Specialized Hackathon Simulation Engine
       demoInterval = setInterval(() => {
         demoSeconds += 1;
 
-        let newScore = 80;
-        let newRisk = 5;
+        let newScore = 85;
+        let newRisk = 8;
         let newLevel: "Normal" | "Caution" | "Critical" = "Normal";
         let newHR = 72;
+        let pattern = "Normal Sinus Rhythm";
 
-        if (demoSeconds < 120) {
-          // Normal phase
-          newScore = 80 - (demoSeconds / 120) * 20; // 80 -> 60
-          newHR = 72 + Math.random() * 5;
-        } else if (demoSeconds < 240) {
-          // Caution phase
+        // Presentation Logic: 
+        // 0-15s: Stable Baseline
+        // 15-30s: Sudden Deterioration (The "Event")
+        // 30-45s: Critical Instability (The "Demo Peak")
+        // 45-60s: Post-Intervention Stabilization
+        
+        if (demoSeconds < 15) {
+          // Healthy Baseline
+          newScore = 85 + Math.random() * 5;
+          newHR = 70 + Math.random() * 4;
+          newRisk = 8 + Math.random() * 2;
+        } else if (demoSeconds < 30) {
+          // The "Trigger Event": Rapid Decay
+          const progress = (demoSeconds - 15) / 15;
+          newScore = 85 - (progress * 55); // 85 -> 30
+          newHR = 74 + (progress * 40);    // 74 -> 114
+          newRisk = 10 + (progress * 60);  // 10 -> 70
           newLevel = "Caution";
-          newScore = 55 - ((demoSeconds - 120) / 120) * 30; // 55 -> 25
-          newRisk = 30 + ((demoSeconds - 120) / 120) * 40;
-          newHR = 90 + Math.random() * 15;
-        } else if (demoSeconds < 270) {
-          // Critical phase
+          pattern = "Sinus Tachycardia";
+        } else if (demoSeconds < 45) {
+          // Critical Presentation
           newLevel = "Critical";
-          newScore = 18 - Math.random() * 5; // ~13-18
-          newRisk = 87 + Math.random() * 5;
-          newHR = 130 + Math.random() * 30;
-        } else if (demoSeconds < 300) {
-          // Recover phase
+          newScore = 15 + Math.random() * 10; 
+          newHR = 135 + Math.random() * 20;
+          newRisk = 92 + Math.random() * 5; // Spike > 90%
+          pattern = "Ventricular Tachycardia";
+        } else if (demoSeconds < 60) {
+          // Stabilization / Recovery
+          const progress = (demoSeconds - 45) / 15;
+          newScore = 25 + (progress * 50); // 25 -> 75
+          newHR = 110 - (progress * 30);   // 110 -> 80
+          newRisk = 80 - (progress * 70);  // 80 -> 10
           newLevel = "Normal";
-          newScore = 20 + ((demoSeconds - 270) / 30) * 60; // climb back to 80
-          newRisk = 87 - ((demoSeconds - 270) / 30) * 80;
-          newHR = 100 - ((demoSeconds - 270) / 30) * 20;
+          pattern = "Normal Sinus Rhythm";
         } else {
-          // Loop reset
-          demoSeconds = 0;
+          demoSeconds = 0; // Loop the demo
         }
 
         const newState: CardiacLiveState = {
           ...DEFAULT_STATE,
-          stability_score: Math.max(0, Math.min(100, Math.round(newScore))),
+          stability_score: Math.round(newScore),
           heart_rate: Math.round(newHR),
-          hrv_sdnn: Math.max(40, Math.round(newScore * 0.6)), // Higher HRV in demo normal
-          spo2: newLevel === "Normal" ? 98 + Math.random() : 92 + Math.random() * 3,
-          qtc: 410 + Math.random() * 10,
-          respiration: 14 + Math.round(Math.random() * 4),
+          hrv_sdnn: Math.max(20, Math.round(newScore * 0.7)),
+          spo2: newLevel === "Critical" ? 91 + Math.random() * 2 : 98 + Math.random(),
+          qtc: 410 + (newLevel === "Critical" ? 40 : 10),
+          respiration: newLevel === "Critical" ? 24 : 16,
           risk_probability: Math.round(newRisk),
           alert_level: newLevel,
-          pattern_label: newLevel === "Critical" ? "Ventricular Tachycardia" : newLevel === "Caution" ? "Irregular Rhythm" : "Normal Sinus Rhythm",
+          pattern_label: pattern,
           timestamp: Date.now(),
           isDataLive: true,
+          activity_context: "Resting",
         };
 
         setLiveState(newState);
@@ -204,7 +226,6 @@ export const CardiacProvider: React.FC<{ children: React.ReactNode }> = ({ child
           const newHist = [...prev, newState];
           return newHist.length > 30 ? newHist.slice(newHist.length - 30) : newHist;
         });
-
       }, 1000);
     } else {
       // Firebase Live Logic
@@ -243,6 +264,9 @@ export const CardiacProvider: React.FC<{ children: React.ReactNode }> = ({ child
               percent: raw.battery.percent || 0,
               is_critical: raw.battery.is_critical || false
             } : undefined,
+            activity_context: raw.activity_context || "Resting",
+            motion_intensity: raw.motion_intensity || 0.0,
+            caregiver_session: raw.caregiver_session
           };
           setLiveState(mappedState);
           setHistory((prev) => {
@@ -268,7 +292,56 @@ export const CardiacProvider: React.FC<{ children: React.ReactNode }> = ({ child
       }, 5000); // Check every 5 seconds
     }
 
+    // Upgrade: Inertial Fall Detection (50Hz Sensor Fusion)
+    let motionTimer: any;
+    let fallBuffer: number[] = [];
+    let isFallDetectionArmed = true;
+    let accelSubscription: any;
+
+    if (Platform.OS !== 'web') {
+      accelSubscription = Accelerometer.addListener(data => {
+        const { x, y, z } = data;
+        const magnitude = Math.sqrt(x ** 2 + y ** 2 + z ** 2);
+        const intensity = Math.max(0, magnitude - 1.0);
+
+        // 1. Fall Detection Logic
+        fallBuffer.push(magnitude);
+        if (fallBuffer.length > 50) fallBuffer.shift(); // 1 second rolling window
+
+        if (isFallDetectionArmed && magnitude > 3.2) { // 3.2G Impact Spike
+          isFallDetectionArmed = false; // Disarm to prevent double-trigger
+
+          // Start stillness watchdog
+          setTimeout(() => {
+            // Check for stillness after impact
+            const isStill = fallBuffer.every(val => Math.abs(val - 1.0) < 0.15);
+            if (isStill) {
+              // Trigger Priority-1 SOS
+              wsService.sendCommand('trigger_sos', {
+                emergency_type: "INERTIAL FALL DETECTED (Confirmed Stillness)",
+                priority: 1
+              });
+            }
+            isFallDetectionArmed = true; // Rearm
+          }, 3000); // Wait 3s to confirm person hasn't moved
+        }
+
+        // 2. Throttled WebSocket Broadcast (once per second)
+
+        if (!motionTimer) {
+          motionTimer = setTimeout(() => {
+            wsService.sendCommand('motion_update', { intensity: parseFloat(intensity.toFixed(3)) });
+            motionTimer = null;
+          }, 1000);
+        }
+      });
+
+      Accelerometer.setUpdateInterval(20); // 50Hz Sampling for Fall Detection
+    }
+
     return () => {
+      if (accelSubscription) accelSubscription.remove();
+      if (motionTimer) clearTimeout(motionTimer);
       if (demoInterval) clearInterval(demoInterval);
       if (watchdogInterval) clearInterval(watchdogInterval);
       if (!isDemoMode) {

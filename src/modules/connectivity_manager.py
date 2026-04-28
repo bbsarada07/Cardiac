@@ -52,6 +52,25 @@ class ConnectivityManager:
         self.alert_queue.append((time.time(), risk_pct, hr, spo2))
         return False # Returns False indicating fallback to max volume local alarm is required
 
+    def verify_device_handshake(self, hardware_id, client_key):
+        """
+        Zero-Trust Identity: Verifies the Hardware ID using a secure cryptographic key.
+        Prevents unauthorized devices from streaming data to the backend.
+        """
+        import hashlib
+        # In a real scenario, this would check against a secure vault / hardware security module
+        EXPECTED_SALT = "COR-TRUST-2026"
+        computed_hash = hashlib.sha256(f"{hardware_id}{EXPECTED_SALT}".encode()).hexdigest()
+        
+        # Simulating a valid handshake check
+        is_valid = (client_key == computed_hash)
+        if is_valid:
+            print(f"[SECURITY] Device Handshake Verified: {hardware_id}")
+        else:
+            print(f"[SECURITY ALERT] Device Handshake FAILED for ID: {hardware_id}")
+        
+        return is_valid
+
     def _flush_queue(self):
         """Sends all queued alerts when connection returns."""
         while self.alert_queue and self.sms_handler:

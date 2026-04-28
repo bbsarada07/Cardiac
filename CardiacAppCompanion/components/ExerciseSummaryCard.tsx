@@ -32,7 +32,7 @@ export default function ExerciseSummaryCard({ session, onClose }: ExerciseSummar
       </View>
 
       <View style={styles.verdictRow}>
-        <MaterialIcons name={verdict.icon} size={20} color={verdict.color} />
+        <MaterialIcons name={verdict.icon as any} size={20} color={verdict.color} />
         <Text style={[styles.verdictText, { color: verdict.color }]}>{verdict.label}</Text>
       </View>
 

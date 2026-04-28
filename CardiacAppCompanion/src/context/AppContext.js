@@ -20,6 +20,11 @@ export const AppProvider = ({ children }) => {
   // Feature 13: Onboarding State
   const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(true); // Default true until checked
   
+  // Final Upgrade: Accessibility & Caregiver
+  const [systemLanguage, setSystemLanguage] = useState('en'); // 'en', 'te', 'hi'
+  const [caregiverLink, setCaregiverLink] = useState(null);
+
+  
   // App State from backend
   const [liveData, setLiveData] = useState({
     hr: 0,
@@ -151,6 +156,17 @@ export const AppProvider = ({ children }) => {
       setIsCooldownActive(false);
     }, 10000);
   };
+  
+  const triggerSOS = (type = "Cardiac Instability Detected (Autonomous)") => {
+    // Collect simulated or dynamic metadata for the SOS dispatch
+    const payload = {
+      location: "17.4448° N, 78.3498° E (T-Hub Hyderabad)", 
+      contacts: ["Caregiver Primary", "EMS Dispatch"],
+      emergency_type: type
+    };
+    wsService.sendCommand('trigger_sos', payload);
+  };
+
 
   // Feature 12: Security Logic
   useEffect(() => {
@@ -211,6 +227,9 @@ export const AppProvider = ({ children }) => {
       exerciseMode, toggleExerciseMode,
       exerciseSession, showExerciseSummary, setShowExerciseSummary,
       dismissAlert,
+      triggerSOS,
+      systemLanguage, setSystemLanguage,
+      caregiverLink, setCaregiverLink,
       isAppLocked, setIsAppLocked,
       userPin, lockEnabled, saveSecuritySettings,
       hasCompletedOnboarding, completeOnboarding

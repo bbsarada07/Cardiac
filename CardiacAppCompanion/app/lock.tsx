@@ -2,7 +2,9 @@ import React, { useState, useContext, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppContext } from '../src/context/AppContext';
+import EmergencyCard from '../src/components/EmergencyCard';
 import { MaterialIcons } from '@expo/vector-icons';
+
 import { useTheme } from '../src/context/ThemeContext';
 import hapticService from '../src/services/HapticService';
 
@@ -10,6 +12,8 @@ export default function LockScreen() {
   const { liveData, userPin, setIsAppLocked } = useContext(AppContext);
   const { colors } = useTheme();
   const [enteredPin, setEnteredPin] = useState('');
+  const [showMedicalId, setShowMedicalId] = useState(false);
+
 
   const getStatusColor = () => {
     if (liveData.stability < 40) return '#EF4444'; // Critical
@@ -84,7 +88,25 @@ export default function LockScreen() {
           <MaterialIcons name="backspace" size={24} color={colors.subtext} />
         </TouchableOpacity>
       </View>
+
+      <View style={styles.footer}>
+        <TouchableOpacity 
+          style={[styles.medicalBtn, { backgroundColor: '#EF4444' }]} 
+          onPress={() => {
+            hapticService.triggerImpact();
+            setShowMedicalId(true);
+          }}
+        >
+          <MaterialIcons name="emergency" size={20} color="#FFF" />
+          <Text style={styles.medicalText}>MEDICAL ID</Text>
+        </TouchableOpacity>
+      </View>
+
+      {showMedicalId && (
+        <EmergencyCard onDismiss={() => setShowMedicalId(false)} />
+      )}
     </SafeAreaView>
+
   );
 }
 
@@ -156,5 +178,27 @@ const styles = StyleSheet.create({
     height: 80,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  footer: {
+    alignItems: 'center',
+    paddingTop: 40,
+  },
+  medicalBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 24,
+    gap: 8,
+    shadowColor: '#EF4444',
+    shadowOpacity: 0.4,
+    shadowRadius: 10,
+    elevation: 5,
+  },
+  medicalText: {
+    color: '#FFF',
+    fontSize: 14,
+    fontWeight: '900',
+    letterSpacing: 1,
   },
 });

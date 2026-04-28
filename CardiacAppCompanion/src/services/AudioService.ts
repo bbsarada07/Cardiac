@@ -45,7 +45,7 @@ class AudioService {
   async playCritical() {
     if (this.sounds.critical) {
       this.stopAll();
-      this.sounds.critical.looping = true;
+      (this.sounds.critical as any).looping = true;
       this.sounds.critical.seekTo(0);
       this.sounds.critical.play();
     }

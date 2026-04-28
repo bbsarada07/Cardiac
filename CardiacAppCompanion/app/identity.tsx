@@ -94,14 +94,14 @@ export default function IdentityScreen() {
             <View style={[styles.card, { backgroundColor: colors.card }]}>
               <FormInput 
                 label="Next of Kin" 
-                value={form.emergency_contact} 
-                onChangeText={(t: string) => setForm({...form, emergency_contact: t})} 
+                value={form.contact1_name} 
+                onChangeText={(t: string) => setForm({...form, contact1_name: t})} 
                 icon="family-restroom" 
               />
               <FormInput 
                 label="Contact Number" 
-                value={form.emergency_phone} 
-                onChangeText={(t: string) => setForm({...form, emergency_phone: t})} 
+                value={form.contact1_phone} 
+                onChangeText={(t: string) => setForm({...form, contact1_phone: t})} 
                 icon="phone" 
                 keyboardType="phone-pad"
                 isLast
