@@ -120,7 +120,7 @@ CorAssist/
 ---
 
 <<<<<<< HEAD
-## ⚖️ Regulatory & Clinical Compliance
+##  Regulatory & Clinical Compliance
 
 CorAssist is engineered for **CDSCO SaMD Class B** and **FDA 510(k)** pathways. 
 
@@ -130,7 +130,7 @@ CorAssist is engineered for **CDSCO SaMD Class B** and **FDA 510(k)** pathways.
 
 ---
 
-## 🏗️ Product Viability & T-Hub Shortlist Specs
+##  Product Viability & T-Hub Shortlist Specs
 
 | Metric | Specification |
 | :--- | :--- |
@@ -143,7 +143,7 @@ CorAssist is engineered for **CDSCO SaMD Class B** and **FDA 510(k)** pathways.
 
 ---
 
-## 🚀 Key Features
+##  Key Features
 =======
 ## Key Features
 >>>>>>> bc3a5117e91c011bae4f527cefe96d39104e6118
