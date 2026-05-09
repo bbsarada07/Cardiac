@@ -119,7 +119,7 @@ CorAssist/
 | **Power Supply** | **3.7V Lithium-Polymer (LiPo) Battery:** Lightweight, rechargeable power source to mimic a consumer wearable form factor. |
 ---
 
-<<<<<<< HEAD
+
 ##  Regulatory & Clinical Compliance
 
 CorAssist is engineered for **CDSCO SaMD Class B** and **FDA 510(k)** pathways. 
@@ -144,9 +144,6 @@ CorAssist is engineered for **CDSCO SaMD Class B** and **FDA 510(k)** pathways.
 ---
 
 ##  Key Features
-=======
-## Key Features
->>>>>>> bc3a5117e91c011bae4f527cefe96d39104e6118
 
 ### Predictive LSTM Time-Series Forecasting
 - Integrates a Long Short-Term Memory (LSTM) neural network trained on live electrocardiogram time-series data
